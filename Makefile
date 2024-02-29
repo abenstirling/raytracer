@@ -4,7 +4,7 @@ PROJECT = raytracer
 
 SRCDIR = src
 BINDIR = bin
-LIBDIR = lib
+# LIBDIR = lib
 INCDIR = include
 
 SOURCES =  $(SRCDIR)/*.cpp 
@@ -14,7 +14,7 @@ EXECUTABLE = $(BINDIR)/$(PROJECT)
 CFLAGS = -std=c++17 -Wall -g
 
 IFLAGS = -I$(INCDIR) 
-LDFLAGS = -L$(LIBDIR)
+# LDFLAGS = -L$(LIBDIR)
 
 all: $(EXECUTABLE)
 
