@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utility>
+#include <iostream>
 
 
 class mm{
@@ -22,7 +23,7 @@ public:
             data[1]=y_;
         }
 
-        float& operator[](int index) {
+        float& operator()(int index) {
             return data[index];
         }
     };
@@ -45,7 +46,7 @@ public:
             data[2]=z_;
         }
 
-        float& operator[](int index) {
+        float& operator()(int index) {
             return data[index];
         }
     };
@@ -71,7 +72,7 @@ public:
 
         }
 
-        float& operator[](int index) {
+        float& operator()(int index) {
             return data[index];
         }
     };
@@ -93,8 +94,11 @@ public:
                 data[1][0] = p10;
                 data[1][1] = p11;
         }
-        float* operator[](int index) {
-            return data[index];
+        float& operator()(int y, int x) {
+            return data[y][x];
+        }
+        vec2 operator()(int row) const {
+            return vec2(data[row][0], data[row][1]);
         }
     };
 
@@ -122,11 +126,11 @@ public:
                 data[2][1] = p21;
                 data[2][2] = p22;
         }
-        float* operator[](int index) {
-            return data[index];
+        float& operator()(int y, int x) {
+            return data[y][x];
         }
-        float& operator[](std::pair<int, int> indices) {
-            return data[indices.first][indices.second];
+        vec3 operator()(int index) const{
+            return vec3(data[index][0], data[index][1], data[index][2]);
         }
 
     };
@@ -165,8 +169,11 @@ public:
                 data[3][3] = p33;
 
         }
-        float* operator[](int index) {
-            return data[index];
+        float& operator()(int y, int x) {
+            return data[y][x];
+        }
+        vec4 operator()(int index) const{
+            return vec4(data[index][0], data[index][1], data[index][2], data[index][3]);
         }
     };
     friend vec2 operator+(const vec2& v1, const vec2& v2);
@@ -180,6 +187,14 @@ public:
     friend float operator*(const vec2& v1, const vec2& v2);
     friend float operator*(const vec3& v1, const vec3& v2);
     friend float operator*(const vec4& v1, const vec4& v2);
+
+    friend vec2 operator*(const mat2& m, const vec2& v);
+    friend vec3 operator*(const mat3& m, const vec3& v);
+    friend vec4 operator*(const mat4& m, const vec4& v);
+
+    friend mat2 operator*(const mat2& m1, const mat2& m2);
+    friend mat3 operator*(const mat3& m1, const mat3& m2);
+    friend mat4 operator*(const mat4& m1, const mat4& m2);
 
 };
 
@@ -214,5 +229,68 @@ float operator*(const mm::vec4& v1, const mm::vec4& v2){
     return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z + v1.w*v2.w;
 }
 
+//mat operations
+mm::vec2 operator*(const mm::mat2& m, const mm::vec2& v){
+    return mm::vec2(m(0)*v, m(1)*v);
+}
+mm::vec3 operator*(const mm::mat3& m, const mm::vec3& v){
+    return mm::vec3(m(0)*v, m(1)*v, m(2)*v);
+}
+mm::vec4 operator*(const mm::mat4& m, const mm::vec4& v){
+    return mm::vec4(m(0)*v, m(1)*v, m(2)*v, m(3)*v);
+}
 
+mm::mat2 operator*(const mm::mat2& m1, const mm::mat2& m2){
+    mm::mat2 r(0.0);
+    for(int y=0; y<2; y++){
+        for(int x=0; x<2; x++){
+            r(y,x) = m1(y)*m2(x);
+        }
+    }
+    return r;
+}
+mm::mat3 operator*(const mm::mat3& m1, const mm::mat3& m2){
+    mm::mat3 r(0.0);
+    for(int y=0; y<3; y++){
+        for(int x=0; x<3; x++){
+            r(y,x) = m1(y)*m2(x);
+        }
+    }
+    return r;
+}
+mm::mat4 operator*(const mm::mat4& m1, const mm::mat4& m2){
+    mm::mat4 r(0.0);
+    for(int y=0; y<4; y++){
+        for(int x=0; x<4; x++){
+            r(y,x) = m1(y)*m2(x);
+        }
+    }
+    return r;
+}
 
+void print_mat(mm::mat2& m){
+    for(int y=0; y<2; y++){
+        for(int x=0; x<2; x++){
+            std::cout << m(y,x) << '\t';
+        }
+        std::cout << std::endl;
+    }
+}
+
+void print_mat(mm::mat3& m){
+    for(int y=0; y<3; y++){
+        for(int x=0; x<3; x++){
+            std::cout << m(y,x << '\t');
+        }
+        std::cout << std::endl;
+    }
+}
+
+void print_mat(mm::mat4& m){
+    for(int y=0; y<4; y++){
+        for(int x=0; x<4; x++){
+            std::cout << m(y,x) << '\t';
+        }
+        std::cout << std::endl;
+    }
+}
