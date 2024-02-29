@@ -294,3 +294,24 @@ void print_mat(mm::mat4& m){
         std::cout << std::endl;
     }
 }
+
+void print_vec(mm::vec2& v){
+    for(int i=0; i<2; i++){   
+        std::cout << v(i) << '\t';
+    }
+    std::cout << std::endl;
+}
+
+void print_vec(mm::vec3& v){
+    for(int i=0; i<3; i++){   
+        std::cout << v(i) << '\t';
+    }
+    std::cout << std::endl;
+}
+
+void print_vec(mm::vec4& v){
+    for(int i=0; i<4; i++){   
+        std::cout << v(i) << '\t';
+    }
+    std::cout << std::endl;
+}
