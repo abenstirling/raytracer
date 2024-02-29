@@ -5,4 +5,7 @@ public:
     Scene();
     ~Scene();
 
+private:
+    
+
 };
