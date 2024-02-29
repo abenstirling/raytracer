@@ -275,6 +275,8 @@ void print_mat(mm::mat2& m){
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl;
+
 }
 
 void print_mat(mm::mat3& m){
@@ -284,6 +286,8 @@ void print_mat(mm::mat3& m){
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl;
+
 }
 
 void print_mat(mm::mat4& m){
@@ -293,6 +297,8 @@ void print_mat(mm::mat4& m){
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl;
+
 }
 
 void print_vec(mm::vec2& v){
@@ -300,6 +306,8 @@ void print_vec(mm::vec2& v){
         std::cout << v(i) << '\t';
     }
     std::cout << std::endl;
+    std::cout << std::endl;
+
 }
 
 void print_vec(mm::vec3& v){
@@ -307,6 +315,8 @@ void print_vec(mm::vec3& v){
         std::cout << v(i) << '\t';
     }
     std::cout << std::endl;
+    std::cout << std::endl;
+
 }
 
 void print_vec(mm::vec4& v){
@@ -314,4 +324,6 @@ void print_vec(mm::vec4& v){
         std::cout << v(i) << '\t';
     }
     std::cout << std::endl;
+    std::cout << std::endl;
+
 }
