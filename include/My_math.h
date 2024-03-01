@@ -23,7 +23,19 @@ struct vec2 {
         data[1] = y_;
     }
 
-    float &operator()(int index) { return data[index]; }
+    float &operator()(int index){
+        return data[index];
+    }
+
+    mm::vec2& operator=(const mm::vec2& other) {
+        if (this != &other) {
+            x = other.x;
+            y = other.y;
+            // z = other.z;
+        }
+        return *this;
+    }
+
 };
 
 struct vec3 {
@@ -44,7 +56,19 @@ struct vec3 {
         data[2] = z_;
     }
 
-    float &operator()(int index) { return data[index]; }
+    float &operator()(int index) {
+        return data[index];
+    }
+
+    mm::vec3& operator=(const mm::vec3& other) {
+        if (this != &other) {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+        }
+        return *this;
+    }
+
 };
 
 struct vec4 {
@@ -68,7 +92,19 @@ struct vec4 {
         data[3] = w_;
     }
 
-    float &operator()(int index) { return data[index]; }
+    float &operator()(int index){
+        return data[index];
+    }
+
+    mm::vec4& operator=(const mm::vec4& other) {
+        if (this != &other) {
+            x = other.x;
+            y = other.y;
+            z = other.z;
+            w = other.w;
+        }
+        return *this;
+    }
 };
 
 struct mat2 {
