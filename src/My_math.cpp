@@ -1,5 +1,5 @@
 
-#include "My_math.h"
+#include "../include/My_math.h"
 
 //addition
 mm::vec2 operator+(const mm::vec2& v1, const mm::vec2& v2) {
