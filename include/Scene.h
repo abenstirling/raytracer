@@ -3,6 +3,7 @@
 #include "Objects.h"
 
 #include <vector>
+#include <stack>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -14,6 +15,7 @@ public:
     ~Scene();
 
 private:
+    std::stack<mm::mat4> transform_stack;
     std::vector<Objects::Sphere> spheres;
     std::vector<Objects::Triangle> triangles;
     std::vector<Objects::Light> lights;
