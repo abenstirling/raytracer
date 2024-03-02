@@ -9,36 +9,35 @@
 #include <sstream>
 
 class Scene{
-public:
+public: //constructor destructor
     Scene();
-    void loadFromFile(const std::string& filename);
     ~Scene();
 
-private:
-    std::stack<mm::mat4> transform_stack;
-    std::vector<Objects::Sphere> spheres;
-    std::vector<Objects::Triangle> triangles;
-    std::vector<Objects::Light> lights;
-    std::vector<Objects::Camera> cameras;
+public: // public vars
+    std::vector<Sphere> spheres;
+    std::vector<Triangle> triangles;
+    std::vector<Light> lights;
+    std::vector<Camera> cameras;
 
 
+private: //private vars
 
+public: //public fn
+    void add_sphere(Sphere& s);
+    void add_triangle(Triangle& t);
+    void add_light(Light& l);
+    void add_camera(Camera& c);
 
-    /**
-     * TODO
-     * [x] project setup
-     * [ ] port readfile from hw2
-     *      stack stuff (local to world coords)
-     * [ ] do the ray tracing
-    */
-    void parseLine(const std::string& line);
-
-public:
-    void add_sphere(Objects::Sphere& s);
-    void add_triangle(Objects::Triangle& t);
-    void add_light(Objects::Light& l);
-    void add_camera(Objects::Camera& c);
-
-
+private: //private fn
 
 };
+
+
+
+/**
+ * TODO
+ * [x] project setup
+ * [ ] port readfile from hw2
+ *      stack stuff (local to world coords)
+ * [ ] do the ray tracing
+*/
