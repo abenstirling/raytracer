@@ -19,7 +19,6 @@ public: // public vars
     std::vector<Light> lights;
     std::vector<Camera> cameras;
 
-
 private: //private vars
 
 public: //public fn

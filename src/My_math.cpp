@@ -12,6 +12,25 @@ mm::vec4 operator+(const mm::vec4& v1, const mm::vec4& v2){
     return mm::vec4(v1.x+v2.x, v1.y+v2.y, v1.z+v2.z, v1.w+v2.w);
 }
 
+mm::mat2 operator+(const mm::mat2 &m1, const mm::mat2 &m2){
+    mm::mat2 ret(0.0);
+    for(int i=0; i<4; i++)
+        ret.data[i] = m1.data[i] + m2.data[i];
+    return ret;
+}
+mm::mat3 operator+(const mm::mat3 &m1, const mm::mat3 &m2){
+    mm::mat3 ret(0.0);
+    for(int i=0; i<9; i++)
+        ret.data[i] = m1.data[i] + m2.data[i];
+    return ret;
+}
+mm::mat4 operator+(const mm::mat4 &m1, const mm::mat4 &m2){
+    mm::mat4 ret(0.0);
+    for(int i=0; i<16; i++)
+        ret.data[i] = m1.data[i] + m2.data[i];
+    return ret;
+}
+
 //subtraction
 mm::vec2 operator-(const mm::vec2& v1, const mm::vec2& v2){
     return mm::vec2(v1.x-v2.x, v1.y-v2.y);
@@ -49,6 +68,44 @@ float operator*(const float* v1, const mm::vec4& v2){
 
 
 //mat operations
+mm::mat2 operator*(const mm::mat2 &m, const float &c){
+    mm::mat2 ret(0.0);
+    for(int i=0; i<4; i++)
+        ret.data[i] = m.data[i] * c;
+    return ret;
+}
+mm::mat3 operator*(const mm::mat3 &m, const float &c){
+    mm::mat3 ret(0.0);
+    for(int i=0; i<9; i++)
+        ret.data[i] = m.data[i] * c;
+    return ret;
+}
+mm::mat4 operator*(const mm::mat4 &m, const float &c){
+    mm::mat4 ret(0.0);
+    for(int i=0; i<16; i++)
+        ret.data[i] = m.data[i] * c;
+    return ret;
+}
+
+mm::mat2 operator*(const float &c, const mm::mat2 &m){
+    mm::mat2 ret(0.0);
+    for(int i=0; i<4; i++)
+        ret.data[i] = m.data[i] * c;
+    return ret;
+}
+mm::mat3 operator*(const float &c, const mm::mat3 &m){
+    mm::mat3 ret(0.0);
+    for(int i=0; i<9; i++)
+        ret.data[i] = m.data[i] * c;
+    return ret;
+}
+mm::mat4 operator*(const float &c, const mm::mat4 &m){
+    mm::mat4 ret(0.0);
+    for(int i=0; i<16; i++)
+        ret.data[i] = m.data[i] * c;
+    return ret;
+}
+
 mm::vec2 operator*(const mm::mat2& m, const mm::vec2& v){
     return mm::vec2(m(0)*v, m(1)*v);
 }
@@ -151,4 +208,28 @@ void mm::print_vec(mm::vec4& v){
     std::cout << std::endl;
     std::cout << std::endl;
 
+}
+
+
+
+mm::vec2 mm::normalize(const mm::vec2& v){
+    float len = sqrt(v.x*v.x +v.y*v.y);
+    return mm::vec2(v.x / len, v.y / len);
+}
+mm::vec3 mm::normalize(const mm::vec3& v){
+    float len = sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+    return mm::vec3(v.x / len, v.y / len, v.z / len);
+
+}
+mm::vec4 mm::normalize(const mm::vec4& v){
+    float len = sqrt(v.x*v.x +v.y*v.y + v.z*v.z + v.w*v.w);
+    return mm::vec4(v.x / len, v.y / len, v.z / len, v.w / len);
+}
+
+mm::vec3 mm::cross(const mm::vec3& v1, const mm::vec3& v2){
+    mm::vec3 ret(0.0);
+    ret.x = v1.y * v2.z - v1.z * v2.y;
+    ret.y = v1.z * v2.x - v1.x * v2.z;
+    ret.z = v1.x * v2.y - v1.y * v2.x;
+    return ret;
 }

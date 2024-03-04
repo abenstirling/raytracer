@@ -2,15 +2,20 @@
 #include "../include/Parse.h"
 #include <sstream>
 #include <string>
+#include <stack>
 
+std::vector<mm::vec3> Parse::vertices;
 
-
+void right_multiply(const mm::mat4& M, std::stack<mm::mat4> &t_stack){
+  mm::mat4 &T = t_stack.top();
+  T = T * M;
+}
 
 void Parse::parse_file(Scene* scene, const char* file_name){
     std::ifstream file(file_name);
     std::string line;
     if(!file.is_open()){
-        std::cerr << "unabel to open file: " << file_name << std::endl;
+        std::cerr << "Unable to open file: " << file_name << std::endl;
         exit(1);
     }
 
@@ -24,18 +29,20 @@ void Parse::parse_file(Scene* scene, const char* file_name){
         ss >> cmd;
 
         float vals[10];
-        int indices[3];
+        int indices[5];
 
+        //vertex x y z
         if(cmd == "vertex"){
             read_vals(ss, 3, vals);
             vertices.push_back(mm::vec3(vals[0],vals[1],vals[2]));
         }
+        //triangle a b c
         else if(cmd == "triangle"){
             read_vals(ss, 3, indices);
             Triangle t(vertices[indices[0]], vertices[indices[1]], vertices[indices[2]]);
             scene->add_triangle(t);
         }
-
+        //sphere x y z r
         else if(cmd == "sphere"){
             read_vals(ss, 4, vals);
             Sphere s(vals[0], vals[1], vals[2], vals[3]);
@@ -63,19 +70,51 @@ void Parse::parse_file(Scene* scene, const char* file_name){
         }
 
         else if(cmd == "rotate"){
+            read_vals(ss,4,vals);
+            mm::vec3 axis(vals[0], vals[1], vals[2]);
+            float degrees = vals[3];
 
+            mm::mat3 R  = Transform::rotate(degrees, axis);
+            mm::mat4 R4(1.0f);
+
+            for(int y=0; y<3; y++){
+              for(int x=0; x<3; x++){
+                R4(y,x) = R(y,x);
+              }
+            }
+
+            right_multiply(R4,t_stack);
         }
 
         else if(cmd == "scale"){
+            read_vals(ss,3,vals);
+            float sx = vals[0];
+            float sy = vals[1];
+            float sz = vals[2];
 
+            mm::mat4 S = Transform::scale(sx,sy,sz);
+            right_multiply(S, t_stack);
         }
+
+        else if (cmd == "pushTransform") {
+          t_stack.push(t_stack.top());
+        }
+
+        else if (cmd == "popTransform") {
+          if (t_stack.size() <= 1) {
+            std::cerr << "Stack has no elements.  Cannot Pop" << std::endl;
+          } else {
+            t_stack.pop();
+          }
+        }
+
     }
 }
 
 
 
 
-void Parse::read_vals(std::stringstream &ss,int num_vals, float* vals){
+void Parse::read_vals(std::stringstream &ss, int num_vals, float* vals){
     for(int i=0; i<num_vals; i++){
         ss >> vals[i];
         if (ss.fail())
@@ -83,7 +122,7 @@ void Parse::read_vals(std::stringstream &ss,int num_vals, float* vals){
     }
 }
 
-void Parse::read_vals(std::stringstream &ss,int num_vals, int* vals){
+void Parse::read_vals(std::stringstream &ss, int num_vals, int* vals){
     for(int i=0; i<num_vals; i++){
         ss >> vals[i];
         if (ss.fail())

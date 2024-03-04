@@ -2,6 +2,7 @@
 
 #include "My_math.h"
 #include "Scene.h"
+#include "Transform.h"
 
 #include <sstream>
 #include <fstream>
