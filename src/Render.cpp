@@ -1,6 +1,6 @@
 #include "../include/Render.h"
 
-Render::Render(){
+Render::Render(Scene* scene){
 
 }
 
