@@ -1,0 +1,7 @@
+
+sphere 0 0 0 0.5
+
+pushTransform
+scale 2.0 2.0
+sphere 0 0 0 0.5
+# hello not supposed to be here

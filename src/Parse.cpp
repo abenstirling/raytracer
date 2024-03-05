@@ -14,6 +14,7 @@ void right_multiply(const mm::mat4& M, std::stack<mm::mat4> &t_stack){
 void Parse::parse_file(Scene* scene, const char* file_name){
     std::ifstream file(file_name);
     std::string line;
+
     if(!file.is_open()){
         std::cerr << "Unable to open file: " << file_name << std::endl;
         exit(1);
@@ -22,11 +23,13 @@ void Parse::parse_file(Scene* scene, const char* file_name){
     std::stack<mm::mat4> t_stack;
     t_stack.push(mm::mat4(1.0));
 
-
     while(std::getline(file, line)){
-        std::string cmd;
+        if(line.empty()) continue;
         std::stringstream ss(line);
+
+        std::string cmd;
         ss >> cmd;
+        if(cmd == "#") continue;
 
         float vals[10];
         int indices[5];
@@ -39,13 +42,16 @@ void Parse::parse_file(Scene* scene, const char* file_name){
         //triangle a b c
         else if(cmd == "triangle"){
             read_vals(ss, 3, indices);
+
             Triangle t(vertices[indices[0]], vertices[indices[1]], vertices[indices[2]]);
             scene->add_triangle(t);
         }
         //sphere x y z r
         else if(cmd == "sphere"){
             read_vals(ss, 4, vals);
-            Sphere s(vals[0], vals[1], vals[2], vals[3]);
+
+            // mm::vec3 pos(vals[0], vals[1], vals[2]);
+            Sphere s(vals[0], vals[1], vals[2], vals[3], t_stack.top());
             scene->add_sphere(s);
         }
 
@@ -55,6 +61,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
                      vals[3], vals[4], vals[5],
                      vals[6], vals[7], vals[8],
                      vals[9]);
+
             scene->add_camera(c);
         }
 
@@ -109,6 +116,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
         }
 
     }
+    file.close();
 }
 
 

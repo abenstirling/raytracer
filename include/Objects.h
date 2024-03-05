@@ -1,6 +1,7 @@
 #pragma once
 #include "My_math.h"
 
+
 class Triangle{
 public:
     mm::vec3 a;
@@ -14,11 +15,14 @@ public:
 
 class Sphere{
 public:
+    // (x/a)^2 + (y/b)^2 + (z/c)^2 =1
+    //
+    //
     mm::vec3 pos;
     float radius;
-
-    Sphere(mm::vec3 pos_, float radius_);
-    Sphere(float x, float y, float z, float radius_);
+    mm::mat4 t;
+    Sphere(mm::vec3 pos_, float radius_, mm::mat4 t_);
+    Sphere(float x, float y, float z, float radius_, mm::mat4 t_);
 };
 
 class Light{
@@ -28,10 +32,10 @@ public:
 
 class Camera{
 public:
-    float fovy;
     mm::vec3 eye;
     mm::vec3 center;
     mm::vec3 up;
+    float fovy;
 
     Camera(mm::vec3 eye_, mm::vec3 center_, mm::vec3 up_, float fovy);
     Camera(float ex, float ey, float ez,

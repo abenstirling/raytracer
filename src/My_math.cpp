@@ -164,7 +164,7 @@ void mm::print_mat(mm::mat2& m){
 void mm::print_mat(mm::mat3& m){
     for(int y=0; y<3; y++){
         for(int x=0; x<3; x++){
-            std::cout << m(y,x << '\t');
+            std::cout << m(y,x) << '\t';
         }
         std::cout << std::endl;
     }

@@ -14,15 +14,15 @@ int main(int argc, char* argv[]){
         << std::endl;
 
     Scene *scene = new Scene();
+    // std::cout << "here" << std::endl;
     Parse::parse_file(scene, argv[1]);
-    Render *render = new Render(scene);
+    // mm::mat2 m = mm::mat2(1.0);
+    // mm::print_mat(m);
 
-    // std::cout << scene->spheres[0].radius << std::endl;
-    // mm::vec3  test = scene->cameras[0].up;
-    // mm::print_vec(test);
-    // std::cout << scene->cameras[0].fovy << std::endl;
+    // std::cout << scene->spheres[0].pos.x << std::endl;
+    // std::cout << scene->spheres.size() << std::endl;
 
-    delete(scene);
-    delete(render);
+
+
     return 0;
 }

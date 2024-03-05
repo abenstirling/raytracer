@@ -10,10 +10,10 @@ Triangle::Triangle(mm::vec3 a_, mm::vec3 b_, mm::vec3 c_)
     : a(a_), b(b_), c(c_) {}
 
 
-Sphere::Sphere(mm::vec3 pos_, float radius_)
-    : pos(pos_), radius(radius_) {}
-Sphere::Sphere(float x, float y, float z, float radius_)
-    : pos(mm::vec3(x,y,z)), radius(radius_) {}
+Sphere::Sphere(mm::vec3 pos_, float radius_, mm::mat4 t_)
+    : pos(pos_), radius(radius_), t(t_) {}
+Sphere::Sphere(float x, float y, float z, float radius_, mm::mat4 t_)
+    : pos(mm::vec3(x,y,z)), radius(radius_), t(t_) {}
 
 
 Camera::Camera(mm::vec3 eye_, mm::vec3 center_, mm::vec3 up_, float fovy_)

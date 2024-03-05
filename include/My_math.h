@@ -112,12 +112,12 @@ public:
         float* data;
 
         mat2(float n)
-            : data(new float(4)) {
+            : data(new float[4]) {
             for (int i = 0; i<4; i++) {
                 data[i] = 0.0;
             }
-            data[0] = n;
-            data[3] = n;
+            data[0*2+0] = n;
+            data[1*2+1] = n;
         }
 
 
@@ -143,13 +143,13 @@ public:
         float* data;
 
         mat3(float n)
-            : data(new float(9)) {
+            : data(new float[9]) {
             for (int i = 0; i<9; i++) {
                 data[i] = 0.0;
             }
-            data[0] = n;
-            data[4] = n;
-            data[8] = n;
+            data[0*3 + 0] = n;
+            data[1*3 + 1] = n;
+            data[2*3 + 2] = n;
         }
         mat3(float p00, float p01, float p02,
             float p10, float p11, float p12,
@@ -180,14 +180,14 @@ public:
         float* data;
 
         mat4(float n)
-            : data(new float(16)) {
+            : data(new float[16]) {
             for (int i = 0; i<16; i++) {
                 data[i] = 0.0;
             }
-            data[0] = n;
-            data[5] = n;
-            data[10] = n;
-            data[15] = n;
+            data[0*4 +0] = n;
+            data[1*4 +1] = n;
+            data[2*4 +2] = n;
+            data[3*4 +3] = n;
         }
         mat4(float p00, float p01, float p02, float p03,
             float p10, float p11, float p12, float p13,

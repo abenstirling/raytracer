@@ -1,4 +1,4 @@
-CXX = g++
+CC = g++
 
 PROJECT = raytracer
 
@@ -7,19 +7,19 @@ BINDIR = bin
 # LIBDIR = lib
 INCDIR = include
 
-SOURCES =  $(SRCDIR)/*.cpp 
+SOURCES =  $(SRCDIR)/*.cpp
 EXECUTABLE = $(BINDIR)/$(PROJECT)
 
 
-CFLAGS = -std=c++17 -Wall -g
+CFLAGS = -g -std=c++17 -Wall
 
-IFLAGS = -I$(INCDIR) 
+IFLAGS = -I$(INCDIR) -I$(INCDIR)/Eigen
 # LDFLAGS = -L$(LIBDIR)
 
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(SOURCES)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(IFLAGS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(IFLAGS) $(LDFLAGS)
 
 
 .PHONY: clean
