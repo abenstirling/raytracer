@@ -21,6 +21,8 @@ void Parse::parse_file(Scene* scene, const char* file_name){
     }
 
     std::stack<mm::mat4> t_stack;
+    std::stack<mm::mat4> inv_t_stack;
+
     t_stack.push(mm::mat4(1.0));
 
     while(std::getline(file, line)){
@@ -43,16 +45,16 @@ void Parse::parse_file(Scene* scene, const char* file_name){
         else if(cmd == "triangle"){
             read_vals(ss, 3, indices);
 
-            Triangle t(vertices[indices[0]], vertices[indices[1]], vertices[indices[2]]);
-            scene->add_triangle(t);
+            // Triangle t(vertices[indices[0]], vertices[indices[1]], vertices[indices[2]]);
+            // scene->add_triangle(t);
         }
         //sphere x y z r
         else if(cmd == "sphere"){
             read_vals(ss, 4, vals);
 
             // mm::vec3 pos(vals[0], vals[1], vals[2]);
-            Sphere s(vals[0], vals[1], vals[2], vals[3], t_stack.top());
-            scene->add_sphere(s);
+            // Sphere s(vals[0], vals[1], vals[2], vals[3], t_stack.top());
+            // scene->add_sphere(s);
         }
 
         else if(cmd == "camera"){
@@ -90,6 +92,9 @@ void Parse::parse_file(Scene* scene, const char* file_name){
               }
             }
 
+            // mm::mat4 R_inverse(1.0);
+
+
             right_multiply(R4,t_stack);
         }
 
@@ -100,6 +105,12 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             float sz = vals[2];
 
             mm::mat4 S = Transform::scale(sx,sy,sz);
+
+            // mm::mat4 S_inverse(1.0);
+            // S_inverse(0,0) = 1.0 / S(0,0);
+            // S_inverse(0,0) = 1.0 / S(1,1);
+            // S_inverse(0,0) = 1.0 / S(2,2);
+
             right_multiply(S, t_stack);
         }
 

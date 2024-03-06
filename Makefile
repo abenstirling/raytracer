@@ -13,7 +13,7 @@ EXECUTABLE = $(BINDIR)/$(PROJECT)
 
 CFLAGS = -g -std=c++17 -Wall
 
-IFLAGS = -I$(INCDIR) -I$(INCDIR)/Eigen
+IFLAGS = -I$(INCDIR)
 # LDFLAGS = -L$(LIBDIR)
 
 all: $(EXECUTABLE)

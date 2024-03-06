@@ -17,7 +17,7 @@ public:
 private:
     static void read_vals(std::stringstream &ss,int num_vals, float* vals);
     static void read_vals(std::stringstream &ss,int num_vals, int* vals);
-
+    static mm::mat4 inv_stack();
 private:
     static std::vector<mm::vec3> vertices;
 

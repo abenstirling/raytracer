@@ -265,4 +265,10 @@ public:
     static vec4 normalize(const vec4& v);
 
     static vec3 cross(const vec3& v1, const vec3& v2);
+
+    friend void inv_R(mat4 m, mat4& inv); //inverse rotation matrix
+    friend void inv_T(mat4 m, mat4& inv); //inverse translation matrix
+    friend void inv_S(mat4 m, mat4& inv); //inverse scale matrix
+
+
 };

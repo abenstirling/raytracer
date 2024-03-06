@@ -233,3 +233,30 @@ mm::vec3 mm::cross(const mm::vec3& v1, const mm::vec3& v2){
     ret.z = v1.x * v2.y - v1.y * v2.x;
     return ret;
 }
+
+
+void inv_R(mm::mat4 m, mm::mat4& inv){
+    inv = mm::mat4(m(0,0), m(1,0), m(2,0), m(3,0),
+                     m(0,1), m(1,1), m(2,1), m(3,1),
+                     m(0,2), m(1,2), m(2,2), m(3,2),
+                     m(0,3), m(1,3), m(2,3), m(3,3));
+}
+
+void inv_T(mm::mat4 m, mm::mat4& inv){
+    for(int i=0; i<16; i++){
+        inv.data[i] = m.data[i];
+    }
+
+    inv(0,3) = -inv(0,3);
+    inv(1,3) = -inv(1,3);
+    inv(2,3) = -inv(2,3);
+}
+
+void inv_S(mm::mat4 m, mm::mat4& inv){
+    for(int i=0; i<16; i++){
+        inv.data[i] = m.data[i];
+    }
+    inv(0,0) = 1/inv(0,0);
+    inv(1,1) = 1/inv(1,1);
+    inv(2,2) = 1/inv(2,2);
+}
