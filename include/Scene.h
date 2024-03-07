@@ -30,7 +30,7 @@ public: //public fn
     void add_sphere(Sphere& s);
     void add_triangle(Triangle& t);
     void add_light(Light& l);
-    void add_camera(Camera& c);
+    // void add_camera(Camera& c);
 
 private: //private fn
 

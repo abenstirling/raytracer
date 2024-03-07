@@ -206,9 +206,9 @@ void Parse::parse_file(Scene* scene, const char* file_name){
           }
         }
         //lights
-        else if(cmd == "directional"){
-            int i=0;
-        }
+        // else if(cmd == "directional"){
+
+        // }
         // else if(cmd == "point"){
 
         // }

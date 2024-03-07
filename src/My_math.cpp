@@ -68,6 +68,49 @@ float operator*(const float* v1, const mm::vec4& v2){
 }
 
 
+mm::vec2 operator*(const mm::vec2 &v, const float f){
+    mm::vec2 ret(0.0);
+    for(int i=0; i<2; i++)
+        ret.data[i] = v.data[i] * f;
+    return ret;
+}
+mm::vec3 operator*(const mm::vec3 &v, const float f){
+    mm::vec3 ret(0.0);
+    for(int i=0; i<3; i++)
+        ret.data[i] = v.data[i] * f;
+    return ret;
+}
+mm::vec4 operator*(const mm::vec4 &v, const float f){
+    mm::vec4 ret(0.0);
+    for(int i=0; i<4; i++)
+        ret.data[i] = v.data[i] * f;
+    return ret;
+
+}
+mm::vec2 operator*(const float f, const mm::vec2 &v){
+    mm::vec2 ret(0.0);
+    for(int i=0; i<2; i++)
+        ret.data[i] = v.data[i] * f;
+    return ret;
+
+}
+mm::vec3 operator*(const float f, const mm::vec3 &v){
+    mm::vec3 ret(0.0);
+    for(int i=0; i<3; i++)
+        ret.data[i] = v.data[i] * f;
+    return ret;
+
+}
+mm::vec4 operator*(const float f, const mm::vec4 &v){
+    mm::vec4 ret(0.0);
+    for(int i=0; i<4; i++)
+        ret.data[i] = v.data[i] * f;
+    return ret;
+}
+
+
+
+
 //mat operations
 mm::mat2 operator*(const mm::mat2 &m, const float &c){
     mm::mat2 ret(0.0);

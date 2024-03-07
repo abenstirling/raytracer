@@ -1,8 +1,5 @@
 
-#include "../include/My_math.h"
-#include "../include/Scene.h"
-#include "../include/Parse.h"
-#include "../include/Render.h"
+#include "../include/raytrace.h"
 #include "../include/stb_image_write.h"
 
 
@@ -17,7 +14,8 @@ int main(int argc, char* argv[]){
     Scene *scene = new Scene();
     Parse::parse_file(scene, argv[1]);
     Render *render = new Render(scene);
-
+    render->compute();
+    render->write();
 
 
 

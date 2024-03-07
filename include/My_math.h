@@ -4,6 +4,7 @@
 #include <utility>
 #include <cmath>
 
+#define EPSILON 10e-15
 
 class mm {
 public:
@@ -45,7 +46,7 @@ public:
         float &x;
         float &y;
         float &z;
-
+        vec2 xy = vec2(x,y);
         vec3(float n) : data(new float[3]), x(data[0]), y(data[1]), z(data[2]) {
             for (int i = 0; i < 3; i++) {
                 data[i] = n;
@@ -79,7 +80,8 @@ public:
         float &y;
         float &z;
         float &w;
-
+        vec2 xy = vec2(x,y);
+        vec3 xyz = vec3(x,y,z);
         vec4(float n)
             : data(new float[4]), x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
             for (int i = 0; i < 3; i++) {
@@ -144,6 +146,16 @@ public:
             }
             return *this;
         }
+
+        mat2 T() const {
+            mat2 result(0.0f);
+            for (int i = 0; i < 2; ++i) {
+                for (int j = 0; j < 2; ++j) {
+                    result.data[i * 2 + j] = data[j * 2 + i];
+                }
+            }
+            return result;
+        }
     };
 
     struct mat3 {
@@ -187,14 +199,24 @@ public:
             }
             return *this;
         }
+
+        mat3 T() const {
+            mat3 result(0.0f);
+            for (int i = 0; i < 3; ++i) {
+                for (int j = 0; j < 3; ++j) {
+                    result.data[i * 3 + j] = data[j * 3 + i];
+                }
+            }
+            return result;
+        }
+
     };
 
     struct mat4 {
         float* data;
-
         mat4(float n)
             : data(new float[16]) {
-            for (int i = 0; i<16; i++) {
+            for (int i = 0; i < 16; i++) {
                 data[i] = 0.0;
             }
             data[0*4 +0] = n;
@@ -240,6 +262,16 @@ public:
             }
             return *this;
         }
+
+        mat4 T() const {
+            mat4 result(0.0f);
+            for (int i = 0; i < 4; ++i) {
+                for (int j = 0; j < 4; ++j) {
+                    result.data[i * 4 + j] = data[j * 4 + i];
+                }
+            }
+            return result;
+        }
     };
     friend vec2 operator+(const vec2 &v1, const vec2 &v2);
     friend vec3 operator+(const vec3 &v1, const vec3 &v2);
@@ -256,6 +288,13 @@ public:
     friend float operator*(const vec2 &v1, const vec2 &v2);
     friend float operator*(const vec3 &v1, const vec3 &v2);
     friend float operator*(const vec4 &v1, const vec4 &v2);
+
+    friend vec2 operator*(const vec2 &v, const float f);
+    friend vec3 operator*(const vec3 &v, const float f);
+    friend vec4 operator*(const vec4 &v, const float f);
+    friend vec2 operator*(const float f, const vec2 &v);
+    friend vec3 operator*(const float f, const vec3 &v);
+    friend vec4 operator*(const float f, const vec4 &v);
 
     friend mat2 operator*(const mat2 &m, const float &c);
     friend mat3 operator*(const mat3 &m, const float &c);
@@ -289,5 +328,6 @@ public:
     friend void inv_R(mat4& m, mat4& inv); //inverse rotation matrix
     friend void inv_T(mat4 m, mat4& inv); //inverse translation matrix
     friend void inv_S(mat4 m, mat4& inv); //inverse scale matrix
+
 
 };

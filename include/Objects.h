@@ -34,6 +34,7 @@ public:
     mm::vec3 b;
     mm::vec3 c;
 
+    bool normals_defined;
     mm::vec3 na;
     mm::vec3 nb;
     mm::vec3 nc;

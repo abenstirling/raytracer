@@ -21,6 +21,6 @@ void Scene::add_light(Light& l){
     lights.push_back(l);
 
 }
-void Scene::add_camera(Camera& c){
-    cameras.push_back(c);
-}
+// void Scene::add_camera(Camera& c){
+//     cameras.push_back(c);
+// }

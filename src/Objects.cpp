@@ -15,18 +15,21 @@ Triangle::Triangle(float ax, float ay, float az,
     a(mm::vec3(ax,ay,az)), b(mm::vec3(bx,by,bz)), c(mm::vec3(cx,cy,cz)),
     na(0), nb(0), nc(0),
     transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)) {}
+    inv_transform(mm::mat4(1.0)),
+    normals_defined(false){}
 Triangle::Triangle(mm::vec3 a_, mm::vec3 b_, mm::vec3 c_)
     :
     a(a_), b(b_), c(c_),
     na(0), nb(0), nc(0),
     transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)) {}
+    inv_transform(mm::mat4(1.0)),
+    normals_defined(false) {}
 Triangle::Triangle(vert_norm a_,vert_norm b_, vert_norm c_):
     a(a_.pos), b(b_.pos), c(c_.pos),
     na(a_.normal), nb(b_.normal), nc(c_.normal),
     transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)) {}
+    inv_transform(mm::mat4(1.0)),
+    normals_defined(true) {}
 
 
 Sphere::Sphere(mm::vec3 pos_, float radius_)
@@ -55,4 +58,4 @@ Camera::Camera()
     :eye(mm::vec3(0.0)),
     center(mm::vec3(0.0)),
     up(mm::vec3(0.0)),
-    fovy(0.0)
+    fovy(0.0) {}
