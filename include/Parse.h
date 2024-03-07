@@ -19,12 +19,12 @@ private:
     static void read_vals(std::stringstream &ss,int num_vals, int* vals);
 
 public:
-    struct vert_norm{
-        mm::vec3 pos;
-        mm::vec3 normal;
-        vert_norm(mm::vec3 pos_, mm::vec3 normal_)
-            : pos(pos_), normal(normal_) {}
-    };
+    // struct vert_norm{
+    //     mm::vec3 pos;
+    //     mm::vec3 normal;
+    //     vert_norm(mm::vec3 pos_, mm::vec3 normal_)
+    //         : pos(pos_), normal(normal_) {}
+    // };
 
 private:
     static std::string cur_cmd;

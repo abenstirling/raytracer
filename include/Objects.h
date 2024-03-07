@@ -1,6 +1,13 @@
 #pragma once
 #include "My_math.h"
 
+struct vert_norm{
+    mm::vec3 pos;
+    mm::vec3 normal;
+    vert_norm(mm::vec3 pos_, mm::vec3 normal_)
+        : pos(pos_), normal(normal_) {}
+};
+
 class Material{
 public:
     Material();
@@ -20,10 +27,16 @@ public:
     Triangle(float ax, float ay, float az,
             float bx, float by, float bz,
             float cx, float cy, float cz);
+    Triangle(vert_norm a_,vert_norm b_, vert_norm c_);
+
 public:
     mm::vec3 a;
     mm::vec3 b;
     mm::vec3 c;
+
+    mm::vec3 na;
+    mm::vec3 nb;
+    mm::vec3 nc;
 
     mm::mat4 transform;
     mm::mat4 inv_transform;
@@ -58,6 +71,7 @@ public:
         float cx, float cy, float cz,
         float ux, float uy, float uz,
         float fovy);
+    Camera();
 public:
     mm::vec3 eye;
     mm::vec3 center;

@@ -5,7 +5,7 @@
 #include <stack>
 
 std::vector<mm::vec3> Parse::vertices;
-std::vector<Parse::vert_norm> Parse::vertices_norm;
+std::vector<vert_norm> Parse::vertices_norm;
 std::string Parse::cur_cmd;
 uint Parse::cur_line;
 
@@ -27,6 +27,12 @@ void Parse::parse_file(Scene* scene, const char* file_name){
     std::stack<mm::mat4> inv_t_stack;
     t_stack.push(mm::mat4(1.0));
     inv_t_stack.push(mm::mat4(1.0));
+
+    mm::vec3 diffuse(0.0);
+    mm::vec3 specular(0.0);
+    mm::vec3 emission(0.0);
+    float shininess = 0.0;
+
 
     cur_line = 0;
     while(std::getline(file, line)){
@@ -73,12 +79,30 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             Triangle t(vertices[indices[0]], vertices[indices[1]], vertices[indices[2]]);
             t.transform = t_stack.top();
             t.inv_transform = inv_t_stack.top();
+
+            t.diffuse = diffuse;
+            t.specular = specular;
+            t.emission = emission;
+            t.shininess = shininess;
             scene->add_triangle(t);
         }
         else if(cmd == "trinormal"){
             read_vals(ss, 3, indices);
-            Triangle t(vert_norm[indices[0]], vert_norm[indices[1]], vert_norm[indices[2]]);
-            // scene->add_triangle(t);
+            vert_norm a = vertices_norm[indices[0]];
+            vert_norm b = vertices_norm[indices[1]];
+            vert_norm c = vertices_norm[indices[2]];
+            Triangle t(a,b,c);
+
+            t.transform = t_stack.top();
+            t.inv_transform = inv_t_stack.top();
+
+            t.diffuse = diffuse;
+            t.specular = specular;
+            t.emission = emission;
+            t.shininess = shininess;
+            scene->add_triangle(t);
+
+
 
         }
         //sphere x y z r
@@ -87,6 +111,11 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             Sphere s(vals[0], vals[1], vals[2], vals[3]);
             s.transform = t_stack.top();
             s.inv_transform = inv_t_stack.top();
+
+            s.diffuse = diffuse;
+            s.specular = specular;
+            s.emission = emission;
+            s.shininess = shininess;
             scene->add_sphere(s);
 
         }
@@ -98,7 +127,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
                      vals[6], vals[7], vals[8],
                      vals[9]);
 
-            scene->add_camera(c);
+            scene->camera = c;
         }
 
         else if(cmd == "translate"){
@@ -110,6 +139,11 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             mm::mat4 T = Transform::translate(tx,ty,tz);
             mm::mat4 &Top = t_stack.top();
             Top = Top * T;
+
+            mm::mat4 T_inv(1.0);
+            inv_T(T,T_inv);
+            mm::mat4 &inv_t = inv_t_stack.top();
+            inv_t = T_inv * inv_t;
 
         }
 
@@ -132,8 +166,8 @@ void Parse::parse_file(Scene* scene, const char* file_name){
 
             mm::mat4 R_inv(1.0);
             inv_R(R4,R_inv);
-            mm::mat4 &Tinv = inv_t_stack.top();
-            Tinv = R_inv * Tinv;
+            mm::mat4 &inv_t = inv_t_stack.top();
+            inv_t = R_inv * inv_t;
 
         }
 
@@ -149,8 +183,8 @@ void Parse::parse_file(Scene* scene, const char* file_name){
 
             mm::mat4 S_inv(1.0);
             inv_S(Scale,S_inv);
-            mm::mat4 &Tinv = inv_t_stack.top();
-            Tinv = S_inv * Tinv;
+            mm::mat4 &inv_t = inv_t_stack.top();
+            inv_t = S_inv * inv_t;
         }
 
         else if (cmd == "pushTransform"){
@@ -184,19 +218,25 @@ void Parse::parse_file(Scene* scene, const char* file_name){
         // else if(cmd == "ambient"){
 
         // }
-        // //materials
-        // else if(cmd == "diffuse"){
+        //materials
+        else if(cmd == "diffuse"){
+            read_vals(ss,3,vals);
+            diffuse = mm::vec3(vals[0], vals[1], vals[2]);
+        }
+        else if(cmd == "specular"){
+            read_vals(ss,3,vals);
+            specular = mm::vec3(vals[0], vals[1], vals[2]);
 
-        // }
-        // else if(cmd == "specular"){
+        }
+        else if(cmd == "emission"){
+            read_vals(ss,3,vals);
+            emission = mm::vec3(vals[0], vals[1], vals[2]);
+        }
+        else if(cmd == "shininess"){
+            read_vals(ss,1,vals);
+            shininess = vals[0];
+        }
 
-        // }
-        // else if(cmd == "shininess"){
-
-        // }
-        // else if(cmd == "emission"){
-
-        // }
         // else if(cmd == ""){
 
         // }

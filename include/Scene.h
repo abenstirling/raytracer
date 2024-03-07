@@ -22,7 +22,7 @@ public: // public vars
     std::vector<Sphere> spheres;
     std::vector<Triangle> triangles;
     std::vector<Light> lights;
-    std::vector<Camera> cameras;
+    Camera camera;
 
 private: //private vars
 

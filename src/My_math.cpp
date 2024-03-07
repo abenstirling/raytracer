@@ -1,5 +1,6 @@
 
 #include "../include/My_math.h"
+#include <iomanip>
 
 //addition
 mm::vec2 operator+(const mm::vec2& v1, const mm::vec2& v2) {
@@ -120,8 +121,8 @@ mm::mat2 operator*(const mm::mat2& m1, const mm::mat2& m2){
     mm::mat2 r(0.0);
     for(int y=0; y<2; y++){
         for(int x=0; x<2; x++){
-            r(y,x) = m1(y)[0]*m2(x)[0] +
-                     m1(y)[1]*m2(x)[1];
+            r(y,x) = m1(y)[0]*m2(0)[x] +
+                     m1(y)[1]*m2(1)[x];
         }
     }
     return r;
@@ -130,9 +131,9 @@ mm::mat3 operator*(const mm::mat3& m1, const mm::mat3& m2){
     mm::mat3 r(0.0);
     for(int y=0; y<3; y++){
         for(int x=0; x<3; x++){
-            r(y,x) = m1(y)[0]*m2(x)[0] +
-                     m1(y)[1]*m2(x)[1] +
-                     m1(y)[2]*m2(x)[2];
+            r(y,x) = m1(y)[0]*m2(0)[x] +
+                     m1(y)[1]*m2(1)[x] +
+                     m1(y)[2]*m2(2)[x];
         }
     }
     return r;
@@ -141,16 +142,17 @@ mm::mat4 operator*(const mm::mat4& m1, const mm::mat4& m2){
     mm::mat4 r(0.0);
     for(int y=0; y<4; y++){
         for(int x=0; x<4; x++){
-            r(y,x) = m1(y)[0]*m2(x)[0] +
-                     m1(y)[1]*m2(x)[1] +
-                     m1(y)[2]*m2(x)[2] +
-                     m1(y)[3]*m2(x)[3];
+            r(y,x) = m1(y)[0]*m2(0)[x] +
+                     m1(y)[1]*m2(1)[x] +
+                     m1(y)[2]*m2(2)[x] +
+                     m1(y)[3]*m2(3)[x];
         }
     }
     return r;
 }
 
 void mm::print_mat(mm::mat2& m){
+    std::cout << std::setprecision(2) << std::fixed;
     for(int y=0; y<2; y++){
         for(int x=0; x<2; x++){
             std::cout << m(y,x) << '\t';

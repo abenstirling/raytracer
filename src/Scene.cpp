@@ -1,7 +1,7 @@
 #include "../include/Scene.h"
 
-Scene::Scene() : width(0), height(0), maxdepth(1){
-
+Scene::Scene()
+    : width(0), height(0), maxdepth(1){
 }
 
 Scene::~Scene(){
