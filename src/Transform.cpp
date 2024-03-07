@@ -11,7 +11,7 @@ float radians(float degrees){
 
 mm::mat3 Transform::rotate(const float degrees, const mm::vec3& axis)
 {
-  mm::vec3 norm_axis = mm::normalize(mm::vec3(0.0));
+  mm::vec3 norm_axis = mm::normalize(axis);
   float x = norm_axis.x;
   float y = norm_axis.y;
   float z = norm_axis.z;
@@ -24,6 +24,7 @@ mm::mat3 Transform::rotate(const float degrees, const mm::vec3& axis)
         sin(theta) * mm::mat3(0, -z, y,
                               z, 0, -x,
                               -y, x, 0);
+
 
 }
 
@@ -75,24 +76,22 @@ mm::mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFa
   return P;
 }
 
-mm::mat4 Transform::scale(const float &sx, const float &sy, const float &sz)
-{
-  // return mm::mat4(sx,0,0,0, 0,sy,0,0, 0,0,sz,0, 0,0,0,1);
-  return mm::mat4(sx, 0.0, 0.0, 0.0,
-                  0.0, sy, 0.0, 0.0,
-                  0.0, 0.0, sz, 0.0,
-                  0.0, 0.0, 0.0, 1.0);
+mm::mat4 Transform::scale(const float &sx, const float &sy, const float &sz){
 
+    mm::mat4 ret =  mm::mat4(1.0);
+    ret(0,0) = sx;
+    ret(1,1) = sy;
+    ret(2,2) = sz;
+    return ret;
 }
 
-mm::mat4 Transform::translate(const float &tx, const float &ty, const float &tz)
-{
+mm::mat4 Transform::translate(const float &tx, const float &ty, const float &tz){
   // return mm::mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, tx, ty, tz, 1);
-  mm::mat4 ret(1.0);
-  ret(0,3) = tx;
-  ret(1,3) = ty;
-  ret(2,3) = tz;
-  return ret;
+    mm::mat4 ret(1.0);
+    ret(0,3) = tx;
+    ret(1,3) = ty;
+    ret(2,3) = tz;
+    return ret;
 }
 
 // To normalize the up direction and construct a coordinate frame.
@@ -101,12 +100,11 @@ mm::mat4 Transform::translate(const float &tx, const float &ty, const float &tz)
 // This function is provided as a helper, in case you want to use it.
 // Using this function (in readfile.cpp or display.cpp) is optional.
 
-mm::vec3 Transform::upvector(const mm::vec3 &up, const mm::vec3 & zvec)
-{
-  mm::vec3 x = mm::cross(up,zvec);
-  mm::vec3 y = mm::cross(zvec,x);
-  mm::vec3 ret = mm::normalize(y);
-  return ret;
+mm::vec3 Transform::upvector(const mm::vec3 &up, const mm::vec3 & zvec){
+    mm::vec3 x = mm::cross(up,zvec);
+    mm::vec3 y = mm::cross(zvec,x);
+    mm::vec3 ret = mm::normalize(y);
+    return ret;
 }
 
 

@@ -1,7 +1,6 @@
 #include "../include/Scene.h"
-#include <utility>
 
-Scene::Scene(){
+Scene::Scene() : width(0), height(0), maxdepth(1){
 
 }
 

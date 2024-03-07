@@ -218,6 +218,7 @@ mm::vec2 mm::normalize(const mm::vec2& v){
 }
 mm::vec3 mm::normalize(const mm::vec3& v){
     float len = sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+    if(len == 0) return mm::vec3(0.0);
     return mm::vec3(v.x / len, v.y / len, v.z / len);
 
 }
@@ -235,11 +236,12 @@ mm::vec3 mm::cross(const mm::vec3& v1, const mm::vec3& v2){
 }
 
 
-void inv_R(mm::mat4 m, mm::mat4& inv){
-    inv = mm::mat4(m(0,0), m(1,0), m(2,0), m(3,0),
-                     m(0,1), m(1,1), m(2,1), m(3,1),
-                     m(0,2), m(1,2), m(2,2), m(3,2),
-                     m(0,3), m(1,3), m(2,3), m(3,3));
+void inv_R(mm::mat4& m, mm::mat4& inv){
+    for(int y=0; y<4; y++){
+        for(int x=0; x<4; x++){
+            inv.data[y*4+x] = m.data[x*4+y];
+        }
+    }
 }
 
 void inv_T(mm::mat4 m, mm::mat4& inv){
@@ -260,3 +262,4 @@ void inv_S(mm::mat4 m, mm::mat4& inv){
     inv(1,1) = 1/inv(1,1);
     inv(2,2) = 1/inv(2,2);
 }
+

@@ -137,6 +137,12 @@ public:
         float* operator()(int row) const{
             return &data[row*2];
         }
+        mat2& operator=(const mat2& other) {
+            if (this != &other) {
+                std::copy(other.data, other.data + 4, data);
+            }
+            return *this;
+        }
     };
 
     struct mat3 {
@@ -173,6 +179,12 @@ public:
         }
         float* operator()(int row) const{
             return &data[row*3];
+        }
+        mat3& operator=(const mat3& other) {
+            if (this != &other) {
+                std::copy(other.data, other.data + 9, data);
+            }
+            return *this;
         }
     };
 
@@ -220,6 +232,13 @@ public:
         float* operator()(int row) const{
             return &data[row*4];
         }
+
+        mat4& operator=(const mat4& other) {
+            if (this != &other) {
+                std::copy(other.data, other.data + 16, data);
+            }
+            return *this;
+        }
     };
     friend vec2 operator+(const vec2 &v1, const vec2 &v2);
     friend vec3 operator+(const vec3 &v1, const vec3 &v2);
@@ -266,9 +285,8 @@ public:
 
     static vec3 cross(const vec3& v1, const vec3& v2);
 
-    friend void inv_R(mat4 m, mat4& inv); //inverse rotation matrix
+    friend void inv_R(mat4& m, mat4& inv); //inverse rotation matrix
     friend void inv_T(mat4 m, mat4& inv); //inverse translation matrix
     friend void inv_S(mat4 m, mat4& inv); //inverse scale matrix
-
 
 };

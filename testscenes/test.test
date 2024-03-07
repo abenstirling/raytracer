@@ -1,7 +1,6 @@
 
-sphere 0 0 0 0.5
-
 pushTransform
-scale 2.0 2.0
-sphere 0 0 0 0.5
-# hello not supposed to be here
+translate 1.0 2.0 3.0
+rotate 1 2 3 45
+scale 1.0 2.0 3.0
+popTransform

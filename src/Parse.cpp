@@ -5,6 +5,9 @@
 #include <stack>
 
 std::vector<mm::vec3> Parse::vertices;
+std::vector<Parse::vert_norm> Parse::vertices_norm;
+std::string Parse::cur_cmd;
+uint Parse::cur_line;
 
 void right_multiply(const mm::mat4& M, std::stack<mm::mat4> &t_stack){
   mm::mat4 &T = t_stack.top();
@@ -22,39 +25,70 @@ void Parse::parse_file(Scene* scene, const char* file_name){
 
     std::stack<mm::mat4> t_stack;
     std::stack<mm::mat4> inv_t_stack;
-
     t_stack.push(mm::mat4(1.0));
+    inv_t_stack.push(mm::mat4(1.0));
 
+    cur_line = 0;
     while(std::getline(file, line)){
+        cur_line++;
         if(line.empty()) continue;
         std::stringstream ss(line);
 
         std::string cmd;
         ss >> cmd;
         if(cmd == "#") continue;
+        cur_cmd = cmd;
 
         float vals[10];
         int indices[5];
 
         //vertex x y z
-        if(cmd == "vertex"){
+        if(cmd == "size"){
+            read_vals(ss, 2, vals);
+            scene->width = vals[0];
+            scene->height = vals[1];
+
+        }
+        else if(cmd == "maxdepth"){
+            read_vals(ss, 1, vals);
+            scene->maxdepth = vals[0];
+        }
+        else if(cmd == "output"){
+            ss >> scene->out_file;
+        }
+        //verticies
+        else if(cmd == "vertex"){
             read_vals(ss, 3, vals);
             vertices.push_back(mm::vec3(vals[0],vals[1],vals[2]));
+        }
+        else if(cmd == "vertexnormal"){
+            read_vals(ss, 6, vals);
+            vertices_norm.push_back(vert_norm(mm::vec3(vals[0],vals[1],vals[2]),
+                                  mm::vec3(vals[3],vals[4],vals[5])));
         }
         //triangle a b c
         else if(cmd == "triangle"){
             read_vals(ss, 3, indices);
 
-            // Triangle t(vertices[indices[0]], vertices[indices[1]], vertices[indices[2]]);
+            Triangle t(vertices[indices[0]], vertices[indices[1]], vertices[indices[2]]);
+            t.transform = t_stack.top();
+            t.inv_transform = inv_t_stack.top();
+            scene->add_triangle(t);
+        }
+        else if(cmd == "trinormal"){
+            read_vals(ss, 3, indices);
+            Triangle t(vert_norm[indices[0]], vert_norm[indices[1]], vert_norm[indices[2]]);
             // scene->add_triangle(t);
+
         }
         //sphere x y z r
         else if(cmd == "sphere"){
             read_vals(ss, 4, vals);
+            Sphere s(vals[0], vals[1], vals[2], vals[3]);
+            s.transform = t_stack.top();
+            s.inv_transform = inv_t_stack.top();
+            scene->add_sphere(s);
 
-            // mm::vec3 pos(vals[0], vals[1], vals[2]);
-            // Sphere s(vals[0], vals[1], vals[2], vals[3], t_stack.top());
-            // scene->add_sphere(s);
         }
 
         else if(cmd == "camera"){
@@ -74,7 +108,8 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             float tz = vals[2];
 
             mm::mat4 T = Transform::translate(tx,ty,tz);
-            right_multiply(T, t_stack);
+            mm::mat4 &Top = t_stack.top();
+            Top = Top * T;
 
         }
 
@@ -83,7 +118,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             mm::vec3 axis(vals[0], vals[1], vals[2]);
             float degrees = vals[3];
 
-            mm::mat3 R  = Transform::rotate(degrees, axis);
+            mm::mat3 R = Transform::rotate(degrees, axis);
             mm::mat4 R4(1.0f);
 
             for(int y=0; y<3; y++){
@@ -92,42 +127,89 @@ void Parse::parse_file(Scene* scene, const char* file_name){
               }
             }
 
-            // mm::mat4 R_inverse(1.0);
+            mm::mat4 &T = t_stack.top();
+            T = T * R4;
 
+            mm::mat4 R_inv(1.0);
+            inv_R(R4,R_inv);
+            mm::mat4 &Tinv = inv_t_stack.top();
+            Tinv = R_inv * Tinv;
 
-            right_multiply(R4,t_stack);
         }
 
         else if(cmd == "scale"){
             read_vals(ss,3,vals);
-            float sx = vals[0];
-            float sy = vals[1];
-            float sz = vals[2];
+            const float sx = vals[0];
+            const float sy = vals[1];
+            const float sz = vals[2];
 
-            mm::mat4 S = Transform::scale(sx,sy,sz);
+            mm::mat4 Scale = Transform::scale(sx,sy,sz);
+            mm::mat4 &T = t_stack.top();
+            T = T * Scale;
 
-            // mm::mat4 S_inverse(1.0);
-            // S_inverse(0,0) = 1.0 / S(0,0);
-            // S_inverse(0,0) = 1.0 / S(1,1);
-            // S_inverse(0,0) = 1.0 / S(2,2);
-
-            right_multiply(S, t_stack);
+            mm::mat4 S_inv(1.0);
+            inv_S(Scale,S_inv);
+            mm::mat4 &Tinv = inv_t_stack.top();
+            Tinv = S_inv * Tinv;
         }
 
-        else if (cmd == "pushTransform") {
+        else if (cmd == "pushTransform"){
           t_stack.push(t_stack.top());
+          inv_t_stack.push(inv_t_stack.top());
+
         }
 
-        else if (cmd == "popTransform") {
+        else if(cmd == "popTransform") {
           if (t_stack.size() <= 1) {
-            std::cerr << "Stack has no elements.  Cannot Pop" << std::endl;
+            std::cerr << "t_stack has no elements.  Cannot Pop" << std::endl;
           } else {
             t_stack.pop();
           }
+          if (inv_t_stack.size() <= 1) {
+            std::cerr << "inv_t_stack has no elements.  Cannot Pop" << std::endl;
+          } else {
+            inv_t_stack.pop();
+          }
         }
+        //lights
+        else if(cmd == "directional"){
+            int i=0;
+        }
+        // else if(cmd == "point"){
 
+        // }
+        // else if(cmd == "attenuation"){
+
+        // }
+        // else if(cmd == "ambient"){
+
+        // }
+        // //materials
+        // else if(cmd == "diffuse"){
+
+        // }
+        // else if(cmd == "specular"){
+
+        // }
+        // else if(cmd == "shininess"){
+
+        // }
+        // else if(cmd == "emission"){
+
+        // }
+        // else if(cmd == ""){
+
+        // }
+        // else if(cmd == ""){
+
+        // }
+        // else if(cmd == ""){
+
+        // }
+
+        // std::cout << cur_line << std::endl;
     }
-    file.close();
+    // file.close();
 }
 
 
@@ -136,15 +218,19 @@ void Parse::parse_file(Scene* scene, const char* file_name){
 void Parse::read_vals(std::stringstream &ss, int num_vals, float* vals){
     for(int i=0; i<num_vals; i++){
         ss >> vals[i];
-        if (ss.fail())
-            std::cerr << "Failed reading value " << i << " will skip\n";
+        if (ss.fail()){
+            std::cerr << cur_line << ": " << cur_cmd << "\nFailed reading value " << i << " will skip\n";
+            exit(1);
+        }
     }
 }
 
 void Parse::read_vals(std::stringstream &ss, int num_vals, int* vals){
     for(int i=0; i<num_vals; i++){
         ss >> vals[i];
-        if (ss.fail())
-            std::cerr << "Failed reading value " << i << " will skip\n";
+        if (ss.fail()){
+            std::cerr << cur_line << ": " << cur_cmd << "\nFailed reading value " << i << " will skip\n";
+            exit(1);
+        }
     }
 }
