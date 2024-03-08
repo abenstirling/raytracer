@@ -80,8 +80,6 @@ public:
         float &y;
         float &z;
         float &w;
-        vec2 xy = vec2(x,y);
-        vec3 xyz = vec3(x,y,z);
         vec4(float n)
             : data(new float[4]), x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
             for (int i = 0; i < 3; i++) {
@@ -95,6 +93,21 @@ public:
             data[2] = z_;
             data[3] = w_;
         }
+        vec4(vec3 v3, float f)
+            : data(new float[4]), x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
+            data[0] = v3(0);
+            data[1] = v3(1);
+            data[2] = v3(2);
+            data[3] = f;
+        }
+        vec4(float f, vec3 v3)
+            : data(new float[4]), x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
+            data[0] = f;
+            data[1] = v3(0);
+            data[2] = v3(1);
+            data[3] = v3(2);
+        }
+
 
         float &operator()(int index){
             return data[index];
@@ -109,6 +122,15 @@ public:
             }
             return *this;
         }
+
+        vec2 xy() {
+            return vec2(data[0], data[1]);
+        }
+
+        vec3 xyz() {
+            return vec3(data[0], data[1], data[2]);
+        }
+
     };
 
     struct mat2 {
@@ -137,8 +159,11 @@ public:
         float& operator()(int y, int x) {
             return data[y*2 + x];
         }
-        float* operator()(int row) const{
-            return &data[row*2];
+        float operator()(int y, int x) const{
+            return data[y*2 + x];
+        }
+        vec2 operator()(int row) const{
+            return vec2(data[row * 2], data[row * 2 + 1]);
         }
         mat2& operator=(const mat2& other) {
             if (this != &other) {
@@ -190,8 +215,11 @@ public:
         float& operator()(int y, int x) {
             return data[y*3 + x];
         }
-        float* operator()(int row) const{
-            return &data[row*3];
+        float operator()(int y, int x) const{
+            return data[y*3 + x];
+        }
+        vec3 operator()(int row) const{
+            return vec3(data[row * 3], data[row * 3 + 1], data[row * 3 + 2]);
         }
         mat3& operator=(const mat3& other) {
             if (this != &other) {
@@ -252,8 +280,11 @@ public:
         float& operator()(int y, int x) {
             return data[y*4 + x];
         }
-        float* operator()(int row) const{
-            return &data[row*4];
+        float operator()(int y, int x) const{
+            return data[y*4 + x];
+        }
+        vec4 operator()(int row) const{
+            return vec4(data[row * 4], data[row * 4 + 1], data[row * 4 + 2], data[row * 4 + 3]);
         }
 
         mat4& operator=(const mat4& other) {
@@ -273,6 +304,7 @@ public:
             return result;
         }
     };
+
     friend vec2 operator+(const vec2 &v1, const vec2 &v2);
     friend vec3 operator+(const vec3 &v1, const vec3 &v2);
     friend vec4 operator+(const vec4 &v1, const vec4 &v2);

@@ -13,23 +13,23 @@ Triangle::Triangle(float ax, float ay, float az,
         float cx, float cy, float cz)
     :
     a(mm::vec3(ax,ay,az)), b(mm::vec3(bx,by,bz)), c(mm::vec3(cx,cy,cz)),
+    normals_defined(false),
     na(0), nb(0), nc(0),
     transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)),
-    normals_defined(false){}
+    inv_transform(mm::mat4(1.0)) {}
 Triangle::Triangle(mm::vec3 a_, mm::vec3 b_, mm::vec3 c_)
     :
     a(a_), b(b_), c(c_),
+    normals_defined(false),
     na(0), nb(0), nc(0),
     transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)),
-    normals_defined(false) {}
+    inv_transform(mm::mat4(1.0)) {}
 Triangle::Triangle(vert_norm a_,vert_norm b_, vert_norm c_):
     a(a_.pos), b(b_.pos), c(c_.pos),
+    normals_defined(true),
     na(a_.normal), nb(b_.normal), nc(c_.normal),
     transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)),
-    normals_defined(true) {}
+    inv_transform(mm::mat4(1.0)) {}
 
 
 Sphere::Sphere(mm::vec3 pos_, float radius_)

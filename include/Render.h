@@ -2,6 +2,8 @@
 
 #include "My_math.h"
 #include "Scene.h"
+#include "stb_image_write.h"
+
 #include <limits>
 
 
@@ -11,10 +13,10 @@ public: //constructor/destructor
     ~Render();
 
 public: //vars
-    float* data;
-
-private: //vars
+    uint8_t* data;
     Scene* scene;
+private: //vars
+
 
     struct Ray{
         mm::vec3 origin;
@@ -36,6 +38,7 @@ private: //vars
 public: //fn
     Ray gen_ray(int y, int x);
     void compute();
+    void write();
 private: //fn
     bool trace(const Ray& ray, Intersection* inter);
     void calc_color(Intersection& inter, mm::vec3* color);

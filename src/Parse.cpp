@@ -60,7 +60,12 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             scene->maxdepth = vals[0];
         }
         else if(cmd == "output"){
-            ss >> scene->out_file;
+            std::string out_file;
+            ss >> out_file;
+            scene->out_file = out_file.c_str();
+
+
+
         }
         //verticies
         else if(cmd == "vertex"){

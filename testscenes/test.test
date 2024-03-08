@@ -1,8 +1,13 @@
 
+
+
+output test_out.png
+size 1000 1000
+camera 0 0 -5  0 0 0  0 1 0  45
+
 pushTransform
-diffuse 3 2 1
-#translate 1.0 2.0 3.0
-#rotate 1 2 3 45
-#scale 1.0 2.0 3.0
+scale 1 1 1
+#rotate 0 0 1 45
+translate 0.1 0 0
 sphere 0 0 0 0.5
-#popTransform
+popTransform

@@ -17,7 +17,7 @@ public: // public vars
     int width;
     int height;
     int maxdepth;
-    char* out_file;
+    const char* out_file;
 
     std::vector<Sphere> spheres;
     std::vector<Triangle> triangles;

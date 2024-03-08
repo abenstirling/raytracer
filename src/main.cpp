@@ -11,9 +11,11 @@ int main(int argc, char* argv[]){
         << "\t./bin/raytracer <scene_file>"
         << std::endl;
 
+
     Scene *scene = new Scene();
     Parse::parse_file(scene, argv[1]);
     Render *render = new Render(scene);
+
     render->compute();
     render->write();
 

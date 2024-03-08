@@ -1,4 +1,4 @@
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+// #define STBI_MSC_SECURE_CRT
 #include "../include/stb_image_write.h"
-#define STB_IMAGE_IMPLEMENTATION
 
-//int stbi_write_png(char const *filename, int w, int h, int comp, const void *data, int stride_in_bytes);
