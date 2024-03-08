@@ -95,7 +95,7 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         // mm::print_mat(s.transform);
 
         mm::vec3 p0 = (s.inv_transform * mm::vec4(ray.origin, 1.0)).xyz();
-        mm::vec3 p1 = (s.inv_transform * mm::vec4(ray.dir, 1.0)).xyz();
+        mm::vec3 p1 = (s.inv_transform * mm::vec4(ray.dir, 0.0)).xyz();
         mm::vec3 center = s.pos;
         float r = s.radius;
 
@@ -113,33 +113,23 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         float t0 = (-b + sqrt(disc)) / (2*a);
         float t1 = (-b - sqrt(disc)) / (2*a);
 
-        mm::vec3 P0 = (s.transform * mm::vec4(p0,1.0)).xyz();
-        mm::vec3 P1 = (s.transform * mm::vec4(p1,1.0)).xyz();
-
         if(t0>0 && t1>0){
             if(t0<t1){
-                mm::vec4 posh =(s.transform * mm::vec4((p0+p1*t0), 1.0));
-                inter->pos = posh.xyz()*(1/posh.w);
-                // inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
+
+                inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
                 inter->t = t0;
 
             }else{
-                mm::vec4 posh =(s.transform * mm::vec4((p0+p1*t1), 1.0));
-                inter->pos = posh.xyz()*(1/posh.w);
-                // inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
+                inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
                 inter->t = t1;
             }
         }
         else if(t0>0 && t1<0){
-            // inter->pos = P0 + P1*t0;
-            mm::vec4 posh =(s.transform * mm::vec4((p0+p1*t0), 1.0));
-            inter->pos = posh.xyz()*(1/posh.w);
+            inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
             inter->t = t0;
         }
         else if(t0<0 && t1>0){
-            mm::vec4 posh =(s.transform * mm::vec4((p0+p1*t1), 1.0));
-            inter->pos = posh.xyz()*(1/posh.w);
-            // inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
+            inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
             inter->t = t1;
         }
 

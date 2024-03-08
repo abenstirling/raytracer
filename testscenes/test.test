@@ -6,9 +6,9 @@ size 400 400
 camera 0 0 -10  0 0 0  0 1 0  70
 
 pushTransform
-    scale 5 0.5 1
-    rotate 0 0 1 20
-    #translate 0.1 0 0
+    scale 1 2 1
+    #rotate 1 1 0 45
+    translate 1 1 0
 
     sphere 0 0 0 0.5
 popTransform
