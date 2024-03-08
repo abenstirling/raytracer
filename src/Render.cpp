@@ -89,7 +89,11 @@ void Render::write(){
 bool Render::trace(const Ray& ray, Intersection* inter){
 
     for(Sphere s : scene->spheres){
+        // std::cout << "inv" << std::endl;
         // mm::print_mat(s.inv_transform);
+        // std::cout << "t" << std::endl;
+        // mm::print_mat(s.transform);
+
         mm::vec3 p0 = (s.inv_transform * mm::vec4(ray.origin, 1.0)).xyz();
         mm::vec3 p1 = (s.inv_transform * mm::vec4(ray.dir, 1.0)).xyz();
         mm::vec3 center = s.pos;
@@ -109,22 +113,33 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         float t0 = (-b + sqrt(disc)) / (2*a);
         float t1 = (-b - sqrt(disc)) / (2*a);
 
+        mm::vec3 P0 = (s.transform * mm::vec4(p0,1.0)).xyz();
+        mm::vec3 P1 = (s.transform * mm::vec4(p1,1.0)).xyz();
+
         if(t0>0 && t1>0){
             if(t0<t1){
-                inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
+                mm::vec4 posh =(s.transform * mm::vec4((p0+p1*t0), 1.0));
+                inter->pos = posh.xyz()*(1/posh.w);
+                // inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
                 inter->t = t0;
 
             }else{
-                inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
+                mm::vec4 posh =(s.transform * mm::vec4((p0+p1*t1), 1.0));
+                inter->pos = posh.xyz()*(1/posh.w);
+                // inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
                 inter->t = t1;
             }
         }
         else if(t0>0 && t1<0){
-            inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
+            // inter->pos = P0 + P1*t0;
+            mm::vec4 posh =(s.transform * mm::vec4((p0+p1*t0), 1.0));
+            inter->pos = posh.xyz()*(1/posh.w);
             inter->t = t0;
         }
         else if(t0<0 && t1>0){
-            inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
+            mm::vec4 posh =(s.transform * mm::vec4((p0+p1*t1), 1.0));
+            inter->pos = posh.xyz()*(1/posh.w);
+            // inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
             inter->t = t1;
         }
 

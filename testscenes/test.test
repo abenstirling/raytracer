@@ -2,12 +2,13 @@
 
 
 output test_out.png
-size 1000 1000
-camera 0 0 -5  0 0 0  0 1 0  45
+size 400 400
+camera 0 0 -10  0 0 0  0 1 0  70
 
 pushTransform
-scale 1 1 1
-#rotate 0 0 1 45
-translate 0.1 0 0
-sphere 0 0 0 0.5
+    scale 5 0.5 1
+    rotate 0 0 1 20
+    #translate 0.1 0 0
+
+    sphere 0 0 0 0.5
 popTransform
