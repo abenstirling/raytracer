@@ -207,9 +207,9 @@ public:
             data[1*3 + 1] = p11;
             data[1*3 + 2] = p12;
 
-            data[2*2 + 0] = p20;
-            data[2*2 + 1] = p21;
-            data[2*2 + 2] = p22;
+            data[2*3 + 0] = p20;
+            data[2*3 + 1] = p21;
+            data[2*3 + 2] = p22;
         }
 
         float& operator()(int y, int x) {

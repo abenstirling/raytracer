@@ -18,8 +18,8 @@ mm::mat3 Transform::rotate(const float degrees, const mm::vec3& axis)
   float theta = radians(degrees);
 
   return cos(theta) * mm::mat3(1.0) +
-        (1 - cos(theta)) * mm::mat3(x*x, y*x, z*x,
-                                    x*y, y*y, z*y,
+        (1 - cos(theta)) * mm::mat3(x*x, x*y, x*z,
+                                    x*y, y*y, y*z,
                                     x*z, y*z, z*z) +
         sin(theta) * mm::mat3(0, -z, y,
                               z, 0, -x,

@@ -89,10 +89,13 @@ void Render::write(){
 bool Render::trace(const Ray& ray, Intersection* inter){
 
     for(Sphere s : scene->spheres){
-        // std::cout << "inv" << std::endl;
-        // mm::print_mat(s.inv_transform);
         // std::cout << "t" << std::endl;
         // mm::print_mat(s.transform);
+        // std::cout << "inv" << std::endl;
+        // mm::print_mat(s.inv_transform);
+        // std::cout << "I?" << std::endl;
+        // mm::mat4 test = s.inv_transform * s.transform;
+        // mm::print_mat(test);
 
         mm::vec3 p0 = (s.inv_transform * mm::vec4(ray.origin, 1.0)).xyz();
         mm::vec3 p1 = (s.inv_transform * mm::vec4(ray.dir, 0.0)).xyz();

@@ -207,6 +207,7 @@ void mm::print_mat(mm::mat2& m){
 }
 
 void mm::print_mat(mm::mat3& m){
+    std::cout << std::setprecision(2) << std::fixed;
     for(int y=0; y<3; y++){
         for(int x=0; x<3; x++){
             std::cout << m(y,x) << '\t';
@@ -218,6 +219,7 @@ void mm::print_mat(mm::mat3& m){
 }
 
 void mm::print_mat(mm::mat4& m){
+    std::cout << std::setprecision(2) << std::fixed;
     for(int y=0; y<4; y++){
         for(int x=0; x<4; x++){
             std::cout << m(y,x) << '\t';
