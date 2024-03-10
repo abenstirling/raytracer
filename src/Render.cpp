@@ -1,6 +1,7 @@
 #include "../include/Render.h"
 #include <cmath>
 #include <cstdint>
+#include <limits>
 
 Render::Render(Scene* scene_)
     :scene(scene_){
@@ -85,6 +86,12 @@ void Render::write(){
 
 
 bool Render::trace(const Ray& ray, Intersection* inter){
+    float min_t = std::numeric_limits<float>::infinity();
+
+    Intersection* it = new Intersection;
+    inter->t = std::numeric_limits<float>::infinity();
+
+
     for(Sphere s : scene->spheres){
         // std::cout << "t" << std::endl;
         // mm::print_mat(s.transform);
@@ -110,29 +117,37 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         float t0 = (-b + sqrt(disc)) / (2*a);
         float t1 = (-b - sqrt(disc)) / (2*a);
 
-        inter->diffuse = s.diffuse;
-        inter->specular = s.specular;
-        inter->shininess = s.shininess;
-        inter->emission = s.emission;
-        inter->ambient = s.ambient;
+
 
         if(t0>0 && t1>0){
             if(t0<t1){
-                inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
-                inter->t = t0;
+                it->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
+                it->t = t0;
             }else{
-                inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
-                inter->t = t1;
+                it->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
+                it->t = t1;
             }
         }
         else if(t0>0 && t1<0){
-            inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
-            inter->t = t0;
+            it->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
+            it->t = t0;
         }
         else if(t0<0 && t1>0){
-            inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
-            inter->t = t1;
+            it->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
+            it->t = t1;
         }
+
+
+        if(it->t < inter->t){
+            inter->pos = it->pos;
+            inter->t = it->t;
+            inter->diffuse = s.diffuse;
+            inter->specular = s.specular;
+            inter->shininess = s.shininess;
+            inter->emission = s.emission;
+            inter->ambient = s.ambient;
+        }
+
 
         mm::vec3 n = mm::normalize(inter->pos - center);
         inter->normal = ((s.inv_transform).T() * mm::vec4(n,0.0)).xyz();
@@ -179,9 +194,11 @@ bool Render::trace(const Ray& ray, Intersection* inter){
                 inter->specular = t.specular;
                 inter->emission = t.emission;
                 inter->shininess = t.shininess;
+                inter->ambient = t.ambient;
             }
     }
 
+    delete(it);
     if(inter->t == INFINITY)
         return false;
     return true;
