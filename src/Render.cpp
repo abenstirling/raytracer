@@ -200,9 +200,10 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
     //inter: pos, normal, t
     //ray: origin, dir
     for(Light light : scene->lights){
+        mm::vec3 eye_dir = mm::normalize(ray.origin - inter.pos);
         if(!light.is_point){ //directional
             mm::vec3 light_dir = mm::normalize(light.pos);
-            mm::vec3 half_vec = mm::normalize (light_dir + ( mm::normalize(ray.dir)));
+            mm::vec3 half_vec = mm::normalize (light_dir + ray.dir);
             lambert_phong(light,
                           light_dir,
                           inter.normal,
@@ -213,7 +214,7 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
                           color);
         }else if(light.is_point){//point
             mm::vec3 light_dir = mm::normalize(light.pos - inter.pos);
-            mm::vec3 half_vec = mm::normalize(light_dir + ( mm::normalize(ray.dir)));
+            mm::vec3 half_vec = mm::normalize(light_dir + ray.dir);
             lambert_phong(light,
                           light_dir,
                           inter.normal,
@@ -238,12 +239,15 @@ void Render::lambert_phong(const Light& light,
     //
     float nDotL = normal * dir;
     // std::cout << nDotL << std::endl;
-    float lambert = (diffuse * dir) * std::max(nDotL, 0.0f) ;
+    mm::vec3 lambert = mm::vec3(diffuse.x*light.color.x,
+                                diffuse.y*light.color.y,
+                                diffuse.z*light.color.z) * std::max(nDotL, 0.0f) ;
     float nDotH = normal * half_vec;
-    float phong = (specular * dir) * pow(std::max(nDotH, 0.0f), shininess) ;
+    mm::vec3 phong = mm::vec3(specular.x*light.color.x,
+                              specular.y*light.color.y,
+                              specular.z*light.color.z) * pow(std::max(nDotH, 0.0f), shininess);
 
 
-
-    *pix_color = *pix_color + light.color * (lambert + phong);
+    *pix_color = *pix_color + (lambert + phong);
 
 }
