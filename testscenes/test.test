@@ -3,15 +3,15 @@
 
 output test_out.png
 size 600 600
-camera 0 0 7  0 0 0  0 1 0  70
+camera 0 0 3  0 0 0  0 1 0  70
 
 
-directional 1 1 1 0.5 0.5 0.5
-#point 0 0 10 0.5 .5 .5
+directional 1 0 1 0 0.7 0
+point 1 0 1 0 0.7 0
 
-diffuse 1 0 0
-#specular 0.5 0.5 0.5
-shininess 0
+diffuse 0.5 0.5 0.5
+specular 0.5 0.5 0.5
+shininess 120.0
 
 
 

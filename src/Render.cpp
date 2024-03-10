@@ -85,7 +85,6 @@ void Render::write(){
 
 
 bool Render::trace(const Ray& ray, Intersection* inter){
-    int i=0;
     for(Sphere s : scene->spheres){
         // std::cout << "t" << std::endl;
         // mm::print_mat(s.transform);
@@ -115,7 +114,8 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         inter->specular = s.specular;
         inter->emission = s.emission;
         inter->shininess = s.shininess;
-        mm::print_vec(inter->diffuse);
+        // std::cout << inter->shininess << std::endl;
+        // mm::print_vec(inter->specular);
 
         if(t0>0 && t1>0){
             if(t0<t1){
@@ -137,8 +137,6 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 
         mm::vec3 n = mm::normalize(inter->pos - center);
         inter->normal = ((s.inv_transform).T() * mm::vec4(n,0.0)).xyz();
-        // mm::print_vec(inter->mat->diffuse);
-        i++;
     }
 
 
@@ -189,6 +187,8 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 
     // }
     // mm::print_vec(inter->diffuse);
+    // std::cout << inter->shininess << std::endl;
+    //
 
     if(inter->t == INFINITY)
         return false;
@@ -203,11 +203,6 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
         if(!light.is_point){ //directional
             mm::vec3 light_dir = mm::normalize(light.pos);
             mm::vec3 half_vec = mm::normalize (light_dir + ( mm::normalize(ray.dir)));
-            // mm::vec3 half_vec = mm::normalize (light.pos + ray.dir);
-
-
-            // mm::print_vec(light_dir);
-
             lambert_phong(light,
                           light_dir,
                           inter.normal,
@@ -241,23 +236,14 @@ void Render::lambert_phong(const Light& light,
                    const float& shininess,
                    mm::vec3* pix_color) {
     //
-    // mm::vec3 nnormal = mm::normalize(normal);
-    //              N * L
-
     float nDotL = normal * dir;
     // std::cout << nDotL << std::endl;
-    mm::vec3 lambert = (diffuse * light.color) * std::max(nDotL, 0.0f) ;
+    float lambert = (diffuse * dir) * std::max(nDotL, 0.0f) ;
     float nDotH = normal * half_vec;
-    mm::vec3 phong = specular * light.color * pow(std::max(nDotH, 0.0f), shininess) ;
+    float phong = (specular * dir) * pow(std::max(nDotH, 0.0f), shininess) ;
 
-    // mm::vec3 d = diffuse;
-    // mm::print_vec(lambert);
-    // std::cout << std::max(nDotL, 0.0f) << std::endl;
-    // mm::vec3 t = diffuse * light.color;
-    // mm::print_vec(d);
 
-    // mm::print_vec(phong);
 
-    *pix_color = lambert + phong;
+    *pix_color = *pix_color + light.color * (lambert + phong);
 
 }
