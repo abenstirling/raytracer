@@ -47,7 +47,7 @@ void Render::compute(){
                 //lighting calculation
                 mm::vec3 color(0.0);
                 calc_color(ray, hit, &color);
-                mm::print_vec(color);
+
 
                 int pos = (y*scene->width + x)*3;
                 data[pos +0] = color.x * 255.0f;
@@ -225,6 +225,6 @@ void Render::lambert_phong(const Light& light,
     float nDotH = normal *half_vec;
     mm::vec3 phong = specular * light.color * pow(std::max(nDotH, 0.0f), shininess) ;
 
-    *pix_color = lambert + phong ;
+    *pix_color = lambert + phong;
 
 }
