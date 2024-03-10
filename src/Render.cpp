@@ -61,9 +61,9 @@ void Render::compute(){
                 // exit(0);
 
                 int pos = (y*scene->width + x)*3;
-                data[pos +0] = static_cast<uint8_t>(color.x * 255.0f);
-                data[pos +1] = static_cast<uint8_t>(color.y * 255.0f);
-                data[pos +2] = static_cast<uint8_t>(color.z * 255.0f);
+                data[pos +0] = static_cast<uint8_t>(std::min(int(color.x * 255.0f), 255));
+                data[pos +1] = static_cast<uint8_t>(std::min(int(color.y * 255.0f), 255));
+                data[pos +2] = static_cast<uint8_t>(std::min(int(color.z * 255.0f), 255));
                 // data[pos +0] = static_cast<uint8_t>(0.0 * 255.0);
                 // data[pos +1] = static_cast<uint8_t>(0.6 * 255.0);
                 // data[pos +2] = static_cast<uint8_t>(0.3 * 255.0);
@@ -112,10 +112,9 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 
         inter->diffuse = s.diffuse;
         inter->specular = s.specular;
-        inter->emission = s.emission;
         inter->shininess = s.shininess;
-        // std::cout << inter->shininess << std::endl;
-        // mm::print_vec(inter->specular);
+        inter->emission = s.emission;
+        inter->ambient = s.ambient;
 
         if(t0>0 && t1>0){
             if(t0<t1){
@@ -140,55 +139,48 @@ bool Render::trace(const Ray& ray, Intersection* inter){
     }
 
 
-    // for(Triangle t : scene->triangles){
+    for (Triangle t : scene->triangles) {
+            mm::vec3 vertexA = (t.transform * mm::vec4(t.a, 1.0)).xyz();
+            mm::vec3 vertexB = (t.transform * mm::vec4(t.b, 1.0)).xyz();
+            mm::vec3 vertexC = (t.transform * mm::vec4(t.c, 1.0)).xyz();
 
-    //     //
-    //     mm::vec3 vertexA = t.a;
-    //     mm::vec3 vertexB = t.b;
-    //     mm::vec3 vertexC = t.c;
-    //     // baracentric coordinates
+            mm::vec3 edgeAB = vertexB - vertexA;
+            mm::vec3 edgeAC = vertexC - vertexA;
 
-    //     mm::vec3 edgeAB = vertexB - vertexA;
-    //     mm::vec3 edgeAC = vertexC - vertexA;
+            mm::vec3 h = mm::cross(ray.dir, edgeAC);
+            float determinant = edgeAB * h;
 
-    //     float determinant, f, u, v;
-    //     mm::vec3 h = mm::cross(ray.dir, edgeAC);
-    //     determinant = edgeAB * h;
+            if (abs(determinant) < EPSILON) {
+                continue;
+            }
 
-    //     if (abs(determinant) < EPSILON) {
-    //         continue;
-    //     }
-    //     // f is inverse determinant
-    //     f = 1.0 / determinant;
-    //     mm::vec3 rayToVertexA = ray.origin - vertexA;
-    //     // u is barycentricU
-    //     u = f * rayToVertexA * h;
+            float f = 1.0 / determinant;
+            mm::vec3 rayToVertexA = ray.origin - vertexA;
+            float u = f * rayToVertexA * h;
 
-    //     //
-    //     if (u < 0.0 || u > 1.0) {
-    //         continue;
-    //     }
+            if (u < 0.0 || u > 1.0) {
+                continue;
+            }
 
-    //     mm::vec3 q = mm::cross(rayToVertexA, edgeAB);
-    //     // v is barycentricV
-    //     v = f * ray.dir * q;
+            mm::vec3 q = mm::cross(rayToVertexA, edgeAB);
+            float v = f * ray.dir * q;
 
-    //     //outside the triangle
-    //     if (v < 0.0 || u + v > 1.0) {
-    //         continue;
-    //     }
+            if (v < 0.0 || u + v > 1.0) {
+                continue;
+            }
 
-    //     float rayIntersectionDistance = f * edgeAC * q;
+            float rayIntersectionDistance = f * edgeAC * q;
 
-    //     if (rayIntersectionDistance > EPSILON) {
-    //         mm::vec3 intersection = ray.origin + ray.dir * rayIntersectionDistance;
-    //         // do we need to check
-    //     }
-
-    // }
-    // mm::print_vec(inter->diffuse);
-    // std::cout << inter->shininess << std::endl;
-    //
+            if (rayIntersectionDistance > EPSILON && rayIntersectionDistance < inter->t) {
+                inter->t = rayIntersectionDistance;
+                inter->pos = ray.origin + ray.dir * rayIntersectionDistance;
+                inter->normal = mm::normalize(mm::cross(edgeAB, edgeAC));
+                inter->diffuse = t.diffuse;
+                inter->specular = t.specular;
+                inter->emission = t.emission;
+                inter->shininess = t.shininess;
+            }
+    }
 
     if(inter->t == INFINITY)
         return false;
@@ -199,11 +191,13 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* color){
     //inter: pos, normal, t
     //ray: origin, dir
+
     for(Light light : scene->lights){
-        mm::vec3 eye_dir = mm::normalize(ray.origin - inter.pos);
+        mm::vec3 eye_dir_form_point = mm::normalize(ray.origin - inter.pos);
+
         if(!light.is_point){ //directional
             mm::vec3 light_dir = mm::normalize(light.pos);
-            mm::vec3 half_vec = mm::normalize (light_dir + ray.dir);
+            mm::vec3 half_vec = mm::normalize (light_dir + eye_dir_form_point);
             lambert_phong(light,
                           light_dir,
                           inter.normal,
@@ -214,7 +208,7 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
                           color);
         }else if(light.is_point){//point
             mm::vec3 light_dir = mm::normalize(light.pos - inter.pos);
-            mm::vec3 half_vec = mm::normalize(light_dir + ray.dir);
+            mm::vec3 half_vec = mm::normalize(light_dir + eye_dir_form_point);
             lambert_phong(light,
                           light_dir,
                           inter.normal,
@@ -226,6 +220,8 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
         }
 
     }
+
+    *color = *color + inter.ambient + inter.emission;
 }
 
 void Render::lambert_phong(const Light& light,
@@ -238,16 +234,14 @@ void Render::lambert_phong(const Light& light,
                    mm::vec3* pix_color) {
     //
     float nDotL = normal * dir;
-    // std::cout << nDotL << std::endl;
-    mm::vec3 lambert = mm::vec3(diffuse.x*light.color.x,
-                                diffuse.y*light.color.y,
-                                diffuse.z*light.color.z) * std::max(nDotL, 0.0f) ;
+    mm::vec3 lambert =  diffuse* std::max(nDotL, 0.0f) ;
     float nDotH = normal * half_vec;
-    mm::vec3 phong = mm::vec3(specular.x*light.color.x,
-                              specular.y*light.color.y,
-                              specular.z*light.color.z) * pow(std::max(nDotH, 0.0f), shininess);
+    mm::vec3 phong = specular * pow(std::max(nDotH, 0.0f), shininess);
 
+    mm::vec3 lp = (lambert + phong);
 
-    *pix_color = *pix_color + (lambert + phong);
+    *pix_color = *pix_color + mm::vec3(lp.x*light.color.x,
+                                       lp.y*light.color.y,
+                                       lp.z*light.color.z);
 
 }

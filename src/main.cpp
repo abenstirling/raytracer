@@ -12,8 +12,6 @@ int main(int argc, char* argv[]){
 
     Scene *scene = new Scene();
     Parse::parse_file(scene, argv[1]);
-
-    // mm::print_vec(scene->spheres[0].diffuse);
     Render *render = new Render(scene);
 
     render->compute();

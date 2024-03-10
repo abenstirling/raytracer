@@ -32,6 +32,8 @@ void Parse::parse_file(Scene* scene, const char* file_name){
     mm::vec3 specular(0.0);
     mm::vec3 emission(0.0);
     float shininess = 0.0;
+    mm::vec3 ambient(0.0);
+
 
 
     cur_line = 0;
@@ -78,7 +80,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
                                   mm::vec3(vals[3],vals[4],vals[5])));
         }
         //triangle a b c
-        else if(cmd == "triangle"){
+        else if(cmd == "tri"){
             read_vals(ss, 3, indices);
 
             Triangle t(vertices[indices[0]], vertices[indices[1]], vertices[indices[2]]);
@@ -87,8 +89,9 @@ void Parse::parse_file(Scene* scene, const char* file_name){
 
             t.diffuse = diffuse;
             t.specular = specular;
-            t.emission = emission;
             t.shininess = shininess;
+            t.emission = emission;
+            t.ambient = ambient;
             scene->add_triangle(t);
         }
         else if(cmd == "trinormal"){
@@ -103,8 +106,9 @@ void Parse::parse_file(Scene* scene, const char* file_name){
 
             t.diffuse = diffuse;
             t.specular = specular;
-            t.emission = emission;
             t.shininess = shininess;
+            t.emission = emission;
+            t.ambient = ambient;
             scene->add_triangle(t);
 
 
@@ -119,8 +123,9 @@ void Parse::parse_file(Scene* scene, const char* file_name){
 
             s.diffuse = diffuse;
             s.specular = specular;
-            s.emission = emission;
             s.shininess = shininess;
+            s.emission = emission;
+            s.ambient = ambient;
 
             // mm::print_vec(diffuse);
             scene->add_sphere(s);
@@ -247,6 +252,8 @@ void Parse::parse_file(Scene* scene, const char* file_name){
         }
         else if(cmd == "ambient"){
             //ambient r g b
+            read_vals(ss,3,vals);
+            ambient = mm::vec3(vals[0], vals[1], vals[2]);
         }
         //materials
         else if(cmd == "diffuse"){
