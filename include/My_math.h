@@ -46,7 +46,11 @@ public:
         float &x;
         float &y;
         float &z;
-        vec2 xy = vec2(x,y);
+
+        vec2 xy() const{
+            return vec2(data[0], data[1]);
+        }
+
         vec3(float n) : data(new float[3]), x(data[0]), y(data[1]), z(data[2]) {
             for (int i = 0; i < 3; i++) {
                 data[i] = n;
@@ -123,11 +127,11 @@ public:
             return *this;
         }
 
-        vec2 xy() {
+        vec2 xy() const{
             return vec2(data[0], data[1]);
         }
 
-        vec3 xyz() {
+        vec3 xyz() const{
             return vec3(data[0], data[1], data[2]);
         }
 

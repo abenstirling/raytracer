@@ -43,6 +43,8 @@ Sphere::Sphere(float x, float y, float z, float radius_)
     transform(mm::mat4(1.0)),
     inv_transform(mm::mat4(1.0)) {}
 
+Light::Light() : pos(mm::vec4(0)), color(mm::vec4(0)) {}
+Light::Light(mm::vec4 pos_, mm::vec4 color_) : pos(pos_), color(color_) {}
 
 Camera::Camera(mm::vec3 eye_, mm::vec3 center_, mm::vec3 up_, float fovy_)
     : eye(eye_), center(center_), up(up_), fovy(fovy_) {}

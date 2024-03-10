@@ -61,7 +61,11 @@ public:
 class Light{
 public:
     mm::vec4 pos;
-    mm::mat4 inverse_transform;
+    mm::vec4 color;
+
+    Light();
+    Light(mm::vec4 pos_, mm::vec4 color_);
+
 };
 
 

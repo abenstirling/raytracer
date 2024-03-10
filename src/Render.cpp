@@ -36,24 +36,6 @@ Render::Ray Render::gen_ray(int y, int x){
 
 void Render::compute(){
 
-    // Ray ray = gen_ray(50, 30);
-
-    // Intersection hit;
-    // if(trace(ray, &hit)){
-    //     // mm::print_vec(ray.origin);
-    //     // mm::print_vec(ray.dir);
-
-    //     std::cout << '.' << std::endl;
-    //     //lighting calculation
-
-    //     // data[y*scene->width + x +0] = static_cast<uint8_t>(0.0 * 255.0);
-    //     // data[y*scene->width + x +1] = static_cast<uint8_t>(1.0 * 255.0);
-    //     // data[y*scene->width + x +2] = static_cast<uint8_t>(0.3 * 255.0);
-
-    // }
-
-
-
     for(int y=0; y<scene->height; y++){
         for(int x=0; x<scene->width; x++){
 
@@ -61,14 +43,18 @@ void Render::compute(){
 
             Intersection hit;
             if(trace(ray, &hit)){
-                int pos = (y*scene->width + x)*3;
-                // std::cout << '.' << std::endl;
+
                 //lighting calculation
-                // mm::vec3 color(0.0);
-                // calc_color(hit, &color);
-                data[pos +0] = static_cast<uint8_t>(0.0 * 255.0);
-                data[pos +1] = static_cast<uint8_t>(1.0 * 255.0);
-                data[pos +2] = static_cast<uint8_t>(0.3 * 255.0);
+                mm::vec3 color(0.0);
+                calc_color(ray, hit, &color);
+
+                int pos = (y*scene->width + x)*3;
+                data[pos +0] = color.x;
+                data[pos +1] = color.y;
+                data[pos +2] = color.z;
+                // data[pos +0] = static_cast<uint8_t>(0.0 * 255.0);
+                // data[pos +1] = static_cast<uint8_t>(1.0 * 255.0);
+                // data[pos +2] = static_cast<uint8_t>(0.3 * 255.0);
             }
         }
     }
@@ -102,9 +88,6 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         mm::vec3 center = s.pos;
         float r = s.radius;
 
-        mm::vec3 T0(0.0);
-        mm::vec3 T1(1.0);
-
         float a = p1 * p1;
         float b = 2.0 * p1 * (p0 - center);
         float c = (p0 - center) * (p0 - center) - r*r;
@@ -118,22 +101,24 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 
         if(t0>0 && t1>0){
             if(t0<t1){
-
                 inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
                 inter->t = t0;
-
+                inter->mat = &s;
             }else{
                 inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
                 inter->t = t1;
+                inter->mat = &s;
             }
         }
         else if(t0>0 && t1<0){
             inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
             inter->t = t0;
+            inter->mat = &s;
         }
         else if(t0<0 && t1>0){
             inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
             inter->t = t1;
+            inter->mat = &s;
         }
 
         mm::vec3 n = mm::normalize(center - inter->pos);
@@ -195,13 +180,54 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 }
 
 
-void Render::calc_color(Intersection& inter, mm::vec3* color){
-    // for(Light l : scene->lights){
+void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* color){
+    //inter: pos, normal, t
+    //ray: origin, dir
 
-    // }
-    color->x = 0.0;
-    color->y = 1.0;
-    color->z = 0.3;
+    for(Light light : scene->lights){
+        if(light.pos.w == 0.0){ //directional w==0
 
+            mm::vec3 light_dir = mm::normalize(light.pos.xyz());
+            mm::vec3 half_vec = mm::normalize (light_dir + ray.dir);
+            lambert_phong(light, light_dir,
+                          inter.normal,
+                          half_vec,
+                          inter.mat->diffuse,
+                          inter.mat->specular,
+                          inter.mat->shininess,
+                          color);
+        }else if(light.pos.w == 1.0){
+            //point
+            //w=1
+            mm::vec3 position = light.pos.xyz() * (1/light.pos.w);
+            mm::vec3 light_dir = mm::normalize(position - inter.pos);
+            mm::vec3 half_vec = mm::normalize(light_dir + ray.dir);
+            lambert_phong(light, light_dir,
+                          inter.normal,
+                          half_vec,
+                          inter.mat->diffuse,
+                          inter.mat->specular,
+                          inter.mat->shininess,
+                          color);
+        }
+
+    }
+}
+
+void Render::lambert_phong(const Light& light,
+                   const mm::vec3& dir,
+                   const mm::vec3& normal,
+                   const mm::vec3& half_vec,
+                   const mm::vec3 diffuse,
+                   const mm::vec3 specular,
+                   const float shininess,
+                   mm::vec3* pix_color) {
+    //
+    float nDotL = normal * dir;
+    mm::vec3 lambert = diffuse * light.color.xyz() * std::max(nDotL, 0.0f) ;
+    float nDotH = normal *half_vec;
+    mm::vec3 phong = specular * light.color.xyz() * pow(std::max(nDotH, 0.0f), shininess) ;
+
+    *pix_color = lambert + phong ;
 
 }
