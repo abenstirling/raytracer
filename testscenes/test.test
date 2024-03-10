@@ -3,15 +3,20 @@
 
 output test_out.png
 size 150 150
-camera 0 0 -7  0 0 0  0 1 0  70
+camera 0 0 -1  0 0 0  0 1 0  70
 
-directional 0 10 0  0 1 0
+directional 5 5 0 0 1 0
+diffuse 0 0.5 0.5
+specular 0 0.5 0.5
+shininess 0
+
+
 
 pushTransform
 
     #translate 4 0 0
     #rotate 0 0 1 100
-    #scale 1 1 1
+    #scale 2 1 1
 
-    sphere 0 0 0 1
+    sphere 0 0 0 0.5
 popTransform

@@ -122,8 +122,8 @@ bool Render::trace(const Ray& ray, Intersection* inter){
             inter->mat = &s;
         }
 
-        mm::vec3 n = mm::normalize(center - inter->pos);
-        inter->normal = ((s.inv_transform).T() * mm::vec4(n.x, n.y, n.z,1.0)).xyz();
+        mm::vec3 n = mm::normalize(inter->pos - center);
+        inter->normal = ((s.inv_transform).T() * mm::vec4(n,0.0)).xyz();
 
     }
 
@@ -188,7 +188,7 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
     for(Light light : scene->lights){
         if(!light.is_point){ //directional
             mm::vec3 light_dir = mm::normalize(light.pos);
-            mm::vec3 half_vec = mm::normalize (light_dir + ray.dir);
+            mm::vec3 half_vec = mm::normalize (light_dir + mm::normalize(ray.dir));
             lambert_phong(light, light_dir,
                           inter.normal,
                           half_vec,
@@ -198,7 +198,7 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
                           color);
         }else if(light.is_point){//point
             mm::vec3 light_dir = mm::normalize(light.pos - inter.pos);
-            mm::vec3 half_vec = mm::normalize(light_dir + ray.dir);
+            mm::vec3 half_vec = mm::normalize(light_dir + mm::normalize(ray.dir));
             lambert_phong(light, light_dir,
                           inter.normal,
                           half_vec,
@@ -220,9 +220,10 @@ void Render::lambert_phong(const Light& light,
                    const float& shininess,
                    mm::vec3* pix_color) {
     //
-    float nDotL = normal * dir;
+    mm::vec3 nnormal = mm::normalize(normal);
+    float nDotL = nnormal * dir;
     mm::vec3 lambert = diffuse * light.color * std::max(nDotL, 0.0f) ;
-    float nDotH = normal *half_vec;
+    float nDotH = nnormal * half_vec;
     mm::vec3 phong = specular * light.color * pow(std::max(nDotH, 0.0f), shininess) ;
 
     *pix_color = lambert + phong;
