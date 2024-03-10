@@ -31,11 +31,18 @@ private: //vars
     struct Intersection{
         mm::vec3 pos;
         mm::vec3 normal;
-        Material* mat;
+
+        mm::vec3 diffuse;
+        mm::vec3 specular;
+        mm::vec3 emission;
+        float shininess;
+
         float t;
-        Intersection() : pos(mm::vec3(0.0)), normal(mm::vec3(0.0)), mat(nullptr), t(INFINITY) {}
+        Intersection() : pos(mm::vec3(0.0)), normal(mm::vec3(0.0)), t(INFINITY),
+            diffuse(mm::vec3(0.0)), specular(mm::vec3(0.0)), emission(mm::vec3(0.0)), shininess(0.0f) {}
         Intersection(mm::vec3 pos_, mm::vec3 normal_)
-            : pos(pos_), normal(normal_), mat(nullptr), t(INFINITY) {}
+            : pos(pos_), normal(normal_), t(INFINITY),
+            diffuse(mm::vec3(0.0)), specular(mm::vec3(0.0)), emission(mm::vec3(0.0)), shininess(0.0f)  {}
     };
 
 public: //fn

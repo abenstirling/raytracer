@@ -121,6 +121,8 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             s.specular = specular;
             s.emission = emission;
             s.shininess = shininess;
+
+            // mm::print_vec(diffuse);
             scene->add_sphere(s);
 
         }

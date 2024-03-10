@@ -11,7 +11,7 @@ struct vert_norm{
 class Material{
 public:
     Material();
-    ~Material();
+    Material(mm::vec3 diffuse_,  mm::vec3 specular_, mm::vec3 emission_, float shininess_);
 public:
     mm::vec3 diffuse;
     mm::vec3 specular;

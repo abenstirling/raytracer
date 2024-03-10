@@ -6,7 +6,11 @@ Material::Material()
     specular(0.0),
     emission(0.0),
     shininess(0.0) {}
-Material::~Material(){}
+Material::Material(mm::vec3 diffuse_,  mm::vec3 specular_, mm::vec3 emission_, float shininess_)
+    : diffuse(diffuse_),
+    specular(specular_),
+    emission(emission_),
+    shininess(shininess_) {}
 
 Triangle::Triangle(float ax, float ay, float az,
         float bx, float by, float bz,
