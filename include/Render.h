@@ -42,6 +42,7 @@ public: //fn
     Ray gen_ray(int y, int x);
     void compute();
     void write();
+
 private: //fn
     bool trace(const Ray& ray, Intersection* inter);
     void calc_color(const Ray& ray, const Intersection& inter, mm::vec3* color);
@@ -49,8 +50,8 @@ private: //fn
                        const mm::vec3& dir,
                        const mm::vec3& normal,
                        const mm::vec3& half_vec,
-                       const mm::vec3 diffuse,
-                       const mm::vec3 specular,
-                       const float shininess,
+                       const mm::vec3& diffuse,
+                       const mm::vec3& specular,
+                       const float& shininess,
                        mm::vec3* color);
 };

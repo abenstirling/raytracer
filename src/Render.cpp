@@ -215,9 +215,9 @@ void Render::lambert_phong(const Light& light,
                    const mm::vec3& dir,
                    const mm::vec3& normal,
                    const mm::vec3& half_vec,
-                   const mm::vec3 diffuse,
-                   const mm::vec3 specular,
-                   const float shininess,
+                   const mm::vec3& diffuse,
+                   const mm::vec3& specular,
+                   const float& shininess,
                    mm::vec3* pix_color) {
     //
     float nDotL = normal * dir;
