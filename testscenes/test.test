@@ -5,6 +5,8 @@ output test_out.png
 size 150 150
 camera 0 0 -7  0 0 0  0 1 0  70
 
+ambient .5 0 .5
+
 pushTransform
 
     translate 4 0 0

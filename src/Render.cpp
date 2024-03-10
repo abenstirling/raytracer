@@ -47,11 +47,12 @@ void Render::compute(){
                 //lighting calculation
                 mm::vec3 color(0.0);
                 calc_color(ray, hit, &color);
+                mm::print_vec(color);
 
                 int pos = (y*scene->width + x)*3;
-                data[pos +0] = color.x;
-                data[pos +1] = color.y;
-                data[pos +2] = color.z;
+                data[pos +0] = color.x * 255.0f;
+                data[pos +1] = color.y * 255.0f;
+                data[pos +2] = color.z * 255.0f;
                 // data[pos +0] = static_cast<uint8_t>(0.0 * 255.0);
                 // data[pos +1] = static_cast<uint8_t>(1.0 * 255.0);
                 // data[pos +2] = static_cast<uint8_t>(0.3 * 255.0);
@@ -185,9 +186,8 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
     //ray: origin, dir
 
     for(Light light : scene->lights){
-        if(light.pos.w == 0.0){ //directional w==0
-
-            mm::vec3 light_dir = mm::normalize(light.pos.xyz());
+        if(!light.is_point){ //directional
+            mm::vec3 light_dir = mm::normalize(light.pos);
             mm::vec3 half_vec = mm::normalize (light_dir + ray.dir);
             lambert_phong(light, light_dir,
                           inter.normal,
@@ -196,11 +196,8 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
                           inter.mat->specular,
                           inter.mat->shininess,
                           color);
-        }else if(light.pos.w == 1.0){
-            //point
-            //w=1
-            mm::vec3 position = light.pos.xyz() * (1/light.pos.w);
-            mm::vec3 light_dir = mm::normalize(position - inter.pos);
+        }else if(light.is_point){//point
+            mm::vec3 light_dir = mm::normalize(light.pos - inter.pos);
             mm::vec3 half_vec = mm::normalize(light_dir + ray.dir);
             lambert_phong(light, light_dir,
                           inter.normal,
@@ -224,9 +221,9 @@ void Render::lambert_phong(const Light& light,
                    mm::vec3* pix_color) {
     //
     float nDotL = normal * dir;
-    mm::vec3 lambert = diffuse * light.color.xyz() * std::max(nDotL, 0.0f) ;
+    mm::vec3 lambert = diffuse * light.color * std::max(nDotL, 0.0f) ;
     float nDotH = normal *half_vec;
-    mm::vec3 phong = specular * light.color.xyz() * pow(std::max(nDotH, 0.0f), shininess) ;
+    mm::vec3 phong = specular * light.color * pow(std::max(nDotH, 0.0f), shininess) ;
 
     *pix_color = lambert + phong ;
 

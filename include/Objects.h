@@ -60,11 +60,12 @@ public:
 
 class Light{
 public:
-    mm::vec4 pos;
-    mm::vec4 color;
+    mm::vec3 pos;
+    mm::vec3 color;
+    bool is_point;
 
     Light();
-    Light(mm::vec4 pos_, mm::vec4 color_);
+    Light(mm::vec3 pos_, mm::vec3 color_, bool is_point);
 
 };
 

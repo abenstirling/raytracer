@@ -211,18 +211,41 @@ void Parse::parse_file(Scene* scene, const char* file_name){
           }
         }
         //lights
-        // else if(cmd == "directional"){
+        else if(cmd == "directional"){
+            //directional x y z r g b
+            read_vals(ss,6,vals);
+            float x = vals[0];
+            float y = vals[1];
+            float z = vals[2];
 
-        // }
-        // else if(cmd == "point"){
+            float r = vals[3];
+            float g = vals[4];
+            float b = vals[5];
 
-        // }
-        // else if(cmd == "attenuation"){
+            Light l(mm::vec3(x,y,z), mm::vec3(r,g,b), false);
+            scene->add_light(l);
+        }
+        else if(cmd == "point"){
+            //point x y z r g b
+            read_vals(ss,6,vals);
+            float x = vals[0];
+            float y = vals[1];
+            float z = vals[2];
 
-        // }
-        // else if(cmd == "ambient"){
+            float r = vals[3];
+            float g = vals[4];
+            float b = vals[5];
 
-        // }
+            Light l(mm::vec3(x,y,z), mm::vec3(r,g,b), true);
+            scene->add_light(l);
+        }
+        else if(cmd == "attenuation"){
+            //attenuation const linear quadratic
+
+        }
+        else if(cmd == "ambient"){
+            //ambient r g b
+        }
         //materials
         else if(cmd == "diffuse"){
             read_vals(ss,3,vals);
