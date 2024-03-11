@@ -25,6 +25,9 @@ public:
             data[0] = x_;
             data[1] = y_;
         }
+        ~vec2(){
+            delete[] data;
+        }
 
         float &operator()(int index){
             return data[index];
@@ -61,6 +64,10 @@ public:
             data[0] = x_;
             data[1] = y_;
             data[2] = z_;
+        }
+
+        ~vec3(){
+            delete[] data;
         }
 
         float &operator()(int index) {
@@ -111,6 +118,9 @@ public:
             data[2] = v3(1);
             data[3] = v3(2);
         }
+        ~vec4(){
+            delete[] data;
+        }
 
 
         float &operator()(int index){
@@ -158,6 +168,10 @@ public:
 
             data[1*2 + 0] = p10;
             data[1*2 + 1] = p11;
+        }
+
+        ~mat2(){
+            delete[] data;
         }
 
         float& operator()(int y, int x) {
@@ -214,6 +228,10 @@ public:
             data[2*3 + 0] = p20;
             data[2*3 + 1] = p21;
             data[2*3 + 2] = p22;
+        }
+
+        ~mat3(){
+            delete[] data;
         }
 
         float& operator()(int y, int x) {
@@ -281,6 +299,11 @@ public:
             data[3*4 + 3] = p33;
 
         }
+
+        ~mat4(){
+            delete[] data;
+        }
+
         float& operator()(int y, int x) {
             return data[y*4 + x];
         }

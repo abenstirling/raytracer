@@ -7,6 +7,7 @@
 
 #include <limits>
 #include <algorithm>
+#include <thread>
 
 
 class Render{
@@ -62,4 +63,5 @@ private: //fn
                        const mm::vec3& specular,
                        const float& shininess,
                        mm::vec3* color);
+    void computeChunk(int start_y, int end_y);
 };

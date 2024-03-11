@@ -17,5 +17,8 @@ int main(int argc, char* argv[]){
     render->compute();
     render->write();
 
+    delete(scene);
+    delete(render);
+
     return 0;
 }

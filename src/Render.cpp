@@ -35,22 +35,11 @@ Render::Ray Render::gen_ray(int y, int x){
     return ray;
 }
 
-void Render::compute(){
-    // Ray ray = gen_ray(70, 50);
-
-    // Intersection hit;
-    // if(trace(ray, &hit)){
-    //     mm::print_vec(hit.normal);
-    // }
-
-    // std::cout << scene->lights.size() << std::endl;
-    // mm::print_vec(scene->lights[0].color);
-
-    for(int y=0; y<scene->height; y++){
+void Render::computeChunk(int start_y, int end_y) {
+    for(int y = start_y; y < end_y; y++) {
         std::cout << std::setprecision(2) << std::fixed;
-        std::cout << (float)y/scene->height << std::endl;
-        for(int x=0; x<scene->width; x++){
-
+        std::cout << (float)y / scene->height << std::endl;
+        for(int x = 0; x < scene->width; x++) {
             Ray ray = gen_ray(y, x);
 
             Intersection hit;
@@ -73,6 +62,50 @@ void Render::compute(){
             }
         }
     }
+}
+
+void Render::compute(){
+    const int num_threads = std::thread::hardware_concurrency(); // Get the number of hardware threads
+    const int chunk_size = std::ceil(scene->height / static_cast<float>(num_threads));
+
+    std::vector<std::thread> threads;
+    for(int i = 0; i < num_threads; i++) {
+        int start_y = i * chunk_size;
+        int end_y = std::min((i + 1) * chunk_size, scene->height);
+        threads.emplace_back(&Render::computeChunk, this, start_y, end_y);
+    }
+
+    for(auto& thread : threads) {
+        thread.join();
+    }
+
+    // for(int y=0; y<scene->height; y++){
+    //     std::cout << std::setprecision(2) << std::fixed;
+    //     std::cout << (float)y/scene->height << std::endl;
+    //     for(int x=0; x<scene->width; x++){
+
+            // Ray ray = gen_ray(y, x);
+
+            // Intersection hit;
+            // if(trace(ray, &hit)){
+            //     // mm::print_vec(hit.normal);
+
+            //     //lighting calculation
+            //     mm::vec3 color(0.0);
+            //     calc_color(ray, hit, &color);
+            //     // std::cout << (hit.mat) << std::endl;
+            //     // exit(0);
+
+            //     int pos = (y*scene->width + x)*3;
+            //     data[pos +0] = static_cast<uint8_t>(std::min(int(color.x * 255.0f), 255));
+            //     data[pos +1] = static_cast<uint8_t>(std::min(int(color.y * 255.0f), 255));
+            //     data[pos +2] = static_cast<uint8_t>(std::min(int(color.z * 255.0f), 255));
+            //     // data[pos +0] = static_cast<uint8_t>(0.0 * 255.0);
+            //     // data[pos +1] = static_cast<uint8_t>(0.6 * 255.0);
+            //     // data[pos +2] = static_cast<uint8_t>(0.3 * 255.0);
+            // }
+    //     }
+    // }
 
 }
 
