@@ -1,0 +1,21 @@
+output test_out.png
+size 600 600
+camera 0 0 5  0 0 0  0 1 0  70
+
+# Object 1
+ambient .5 0 .5
+sphere 0 0 0 1
+
+pushTransform
+translate 1 0 0
+rotate 0 1 0 45
+
+# Object 2
+ambient .5 0 .1
+sphere 0 0 0 1
+
+popTransform
+
+# Object 3
+ambient .1 0 .5
+sphere 0 0 0 1
