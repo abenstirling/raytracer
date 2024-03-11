@@ -9,24 +9,23 @@
 class mm {
 public:
     struct vec2 {
-        float *data;
+        float data[2];
         float &x;
         float &y;
 
         vec2(float n)
-            : data(new float[2]), x(data[0]), y(data[1]) {
+            : x(data[0]), y(data[1]) {
             for (int i = 0; i < 2; i++) {
                 data[i] = n;
             }
         }
 
         vec2(float x_, float y_)
-            : data(new float[2]), x(data[0]), y(data[1]) {
+            : x(data[0]), y(data[1]) {
             data[0] = x_;
             data[1] = y_;
         }
         ~vec2(){
-            delete[] data;
         }
 
         float &operator()(int index){
@@ -35,8 +34,8 @@ public:
 
         mm::vec2& operator=(const mm::vec2& other) {
             if (this != &other) {
-                delete[] data;
-                data = new float[2];
+                // delete[] data;
+                // data = new float[2];
                std::copy(other.data, other.data+2, data);
             }
             return *this;
@@ -45,7 +44,7 @@ public:
     };
 
     struct vec3 {
-        float *data;
+        float data[3];
         float &x;
         float &y;
         float &z;
@@ -54,20 +53,19 @@ public:
             return vec2(data[0], data[1]);
         }
 
-        vec3(float n) : data(new float[3]), x(data[0]), y(data[1]), z(data[2]) {
+        vec3(float n) : x(data[0]), y(data[1]), z(data[2]) {
             for (int i = 0; i < 3; i++) {
                 data[i] = n;
             }
         }
 
-        vec3(float x_, float y_, float z_) : data(new float[3]), x(data[0]), y(data[1]), z(data[2]) {
+        vec3(float x_, float y_, float z_) : x(data[0]), y(data[1]), z(data[2]) {
             data[0] = x_;
             data[1] = y_;
             data[2] = z_;
         }
 
         ~vec3(){
-            delete[] data;
         }
 
         float &operator()(int index) {
@@ -76,8 +74,8 @@ public:
 
         mm::vec3& operator=(const mm::vec3& other) {
             if (this != &other) {
-                delete[] data;
-                data = new float[3];
+                // delete[] data;
+                // data = new float[3];
                std::copy(other.data, other.data+3, data);
             }
             return *this;
@@ -86,40 +84,39 @@ public:
     };
 
     struct vec4 {
-        float *data;
+        float data[4];
         float &x;
         float &y;
         float &z;
         float &w;
         vec4(float n)
-            : data(new float[4]), x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
+            : x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
             for (int i = 0; i < 3; i++) {
                 data[i] = n;
             }
         }
         vec4(float x_, float y_, float z_, float w_)
-            : data(new float[4]), x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
+            : x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
             data[0] = x_;
             data[1] = y_;
             data[2] = z_;
             data[3] = w_;
         }
         vec4(vec3 v3, float f)
-            : data(new float[4]), x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
+            : x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
             data[0] = v3(0);
             data[1] = v3(1);
             data[2] = v3(2);
             data[3] = f;
         }
         vec4(float f, vec3 v3)
-            : data(new float[4]), x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
+            : x(data[0]), y(data[1]), z(data[2]), w(data[3]) {
             data[0] = f;
             data[1] = v3(0);
             data[2] = v3(1);
             data[3] = v3(2);
         }
         ~vec4(){
-            delete[] data;
         }
 
 
@@ -129,8 +126,8 @@ public:
 
         mm::vec4& operator=(const mm::vec4& other) {
             if (this != &other) {
-                delete[] data;
-                data = new float[4];
+                // delete[] data;
+                // data = new float[4];
                std::copy(other.data, other.data+4, data);
             }
             return *this;
@@ -147,10 +144,9 @@ public:
     };
 
     struct mat2 {
-        float* data;
+        float data[4];
 
-        mat2(float n)
-            : data(new float[4]) {
+        mat2(float n){
             for (int i = 0; i<4; i++) {
                 data[i] = 0.0;
             }
@@ -160,8 +156,7 @@ public:
 
 
         mat2(float p00, float p01,
-            float p10, float p11)
-            : data(new float(4)) {
+            float p10, float p11) {
             data[0*2 + 0] = p00;
             data[0*2 + 1] = p01;
 
@@ -170,7 +165,6 @@ public:
         }
 
         ~mat2(){
-            delete[] data;
         }
 
         float& operator()(int y, int x) {
@@ -184,8 +178,8 @@ public:
         }
         mat2& operator=(const mat2& other) {
             if (this != &other) {
-                delete[] data;
-                data = new float[4];
+                // delete[] data;
+                // data = new float[4];
                 std::copy(other.data, other.data + 4, data);
             }
             return *this;
@@ -203,10 +197,9 @@ public:
     };
 
     struct mat3 {
-        float* data;
+        float data[9];
 
-        mat3(float n)
-            : data(new float[9]) {
+        mat3(float n) {
             for (int i = 0; i<9; i++) {
                 data[i] = 0.0;
             }
@@ -216,8 +209,7 @@ public:
         }
         mat3(float p00, float p01, float p02,
             float p10, float p11, float p12,
-            float p20, float p21, float p22)
-            : data(new float(9)) {
+            float p20, float p21, float p22) {
             data[0*3 + 0] = p00;
             data[0*3 + 1] = p01;
             data[0*3 + 2] = p02;
@@ -232,7 +224,6 @@ public:
         }
 
         ~mat3(){
-            delete[] data;
         }
 
         float& operator()(int y, int x) {
@@ -246,8 +237,8 @@ public:
         }
         mat3& operator=(const mat3& other) {
             if (this != &other) {
-                delete[] data;
-                data = new float[9];
+                // delete[] data;
+                // data = new float[9];
                 std::copy(other.data, other.data + 9, data);
             }
             return *this;
@@ -266,9 +257,8 @@ public:
     };
 
     struct mat4 {
-        float* data;
-        mat4(float n)
-            : data(new float[16]) {
+        float data[16];
+        mat4(float n) {
             for (int i = 0; i < 16; i++) {
                 data[i] = 0.0;
             }
@@ -304,7 +294,6 @@ public:
         }
 
         ~mat4(){
-            delete[] data;
         }
 
         float& operator()(int y, int x) {
@@ -319,8 +308,8 @@ public:
 
         mat4& operator=(const mat4& other) {
             if (this != &other) {
-                delete[] data;
-                data = new float[16];
+                // delete[] data;
+                // data = new float[16];
                 std::copy(other.data, other.data + 16, data);
             }
             return *this;

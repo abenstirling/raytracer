@@ -11,7 +11,7 @@ SOURCES =  $(SRCDIR)/*.cpp
 EXECUTABLE = $(BINDIR)/$(PROJECT)
 
 
-CFLAGS = -g -std=c++17 -Wall
+CFLAGS = -std=c++17 -Wall
 
 IFLAGS = -I$(INCDIR)
 # LDFLAGS = -L$(LIBDIR)
