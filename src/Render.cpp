@@ -189,49 +189,49 @@ bool Render::trace(const Ray& ray, Intersection* inter){
     }
 
 
-    for (Triangle t : scene->triangles) {
-            mm::vec3 vertexA = (t.transform * mm::vec4(t.a, 1.0)).xyz();
-            mm::vec3 vertexB = (t.transform * mm::vec4(t.b, 1.0)).xyz();
-            mm::vec3 vertexC = (t.transform * mm::vec4(t.c, 1.0)).xyz();
+    // for (Triangle t : scene->triangles) {
+    //         mm::vec3 vertexA = (t.transform * mm::vec4(t.a, 1.0)).xyz();
+    //         mm::vec3 vertexB = (t.transform * mm::vec4(t.b, 1.0)).xyz();
+    //         mm::vec3 vertexC = (t.transform * mm::vec4(t.c, 1.0)).xyz();
 
-            mm::vec3 edgeAB = vertexB - vertexA;
-            mm::vec3 edgeAC = vertexC - vertexA;
+    //         mm::vec3 edgeAB = vertexB - vertexA;
+    //         mm::vec3 edgeAC = vertexC - vertexA;
 
-            mm::vec3 h = mm::cross(ray.dir, edgeAC);
-            float determinant = edgeAB * h;
+    //         mm::vec3 h = mm::cross(ray.dir, edgeAC);
+    //         float determinant = edgeAB * h;
 
-            if (abs(determinant) < EPSILON) {
-                continue;
-            }
+    //         if (abs(determinant) < EPSILON) {
+    //             continue;
+    //         }
 
-            float f = 1.0 / determinant;
-            mm::vec3 rayToVertexA = ray.origin - vertexA;
-            float u = f * rayToVertexA * h;
+    //         float f = 1.0 / determinant;
+    //         mm::vec3 rayToVertexA = ray.origin - vertexA;
+    //         float u = f * rayToVertexA * h;
 
-            if (u < 0.0 || u > 1.0) {
-                continue;
-            }
+    //         if (u < 0.0 || u > 1.0) {
+    //             continue;
+    //         }
 
-            mm::vec3 q = mm::cross(rayToVertexA, edgeAB);
-            float v = f * ray.dir * q;
+    //         mm::vec3 q = mm::cross(rayToVertexA, edgeAB);
+    //         float v = f * ray.dir * q;
 
-            if (v < 0.0 || u + v > 1.0) {
-                continue;
-            }
+    //         if (v < 0.0 || u + v > 1.0) {
+    //             continue;
+    //         }
 
-            float rayIntersectionDistance = f * edgeAC * q;
+    //         float rayIntersectionDistance = f * edgeAC * q;
 
-            if (rayIntersectionDistance > EPSILON && rayIntersectionDistance < inter->t) {
-                inter->t = rayIntersectionDistance;
-                inter->pos = ray.origin + ray.dir * rayIntersectionDistance;
-                inter->normal = mm::normalize(mm::cross(edgeAB, edgeAC));
-                inter->diffuse = t.diffuse;
-                inter->specular = t.specular;
-                inter->emission = t.emission;
-                inter->shininess = t.shininess;
-                inter->ambient = t.ambient;
-            }
-    }
+    //         if (rayIntersectionDistance > EPSILON && rayIntersectionDistance < inter->t) {
+    //             inter->t = rayIntersectionDistance;
+    //             inter->pos = ray.origin + ray.dir * rayIntersectionDistance;
+    //             inter->normal = mm::normalize(mm::cross(edgeAB, edgeAC));
+    //             inter->diffuse = t.diffuse;
+    //             inter->specular = t.specular;
+    //             inter->emission = t.emission;
+    //             inter->shininess = t.shininess;
+    //             inter->ambient = t.ambient;
+    //         }
+    // }
 
     delete(cur_inter);
     if(inter->t == INFINITY)
