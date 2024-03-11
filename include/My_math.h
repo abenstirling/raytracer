@@ -35,9 +35,9 @@ public:
 
         mm::vec2& operator=(const mm::vec2& other) {
             if (this != &other) {
-                x = other.x;
-                y = other.y;
-                // z = other.z;
+                delete[] data;
+                data = new float[2];
+               std::copy(other.data, other.data+2, data);
             }
             return *this;
         }
@@ -76,9 +76,9 @@ public:
 
         mm::vec3& operator=(const mm::vec3& other) {
             if (this != &other) {
-                x = other.x;
-                y = other.y;
-                z = other.z;
+                delete[] data;
+                data = new float[3];
+               std::copy(other.data, other.data+3, data);
             }
             return *this;
         }
@@ -129,10 +129,9 @@ public:
 
         mm::vec4& operator=(const mm::vec4& other) {
             if (this != &other) {
-                x = other.x;
-                y = other.y;
-                z = other.z;
-                w = other.w;
+                delete[] data;
+                data = new float[4];
+               std::copy(other.data, other.data+4, data);
             }
             return *this;
         }
@@ -185,6 +184,8 @@ public:
         }
         mat2& operator=(const mat2& other) {
             if (this != &other) {
+                delete[] data;
+                data = new float[4];
                 std::copy(other.data, other.data + 4, data);
             }
             return *this;
@@ -245,6 +246,8 @@ public:
         }
         mat3& operator=(const mat3& other) {
             if (this != &other) {
+                delete[] data;
+                data = new float[9];
                 std::copy(other.data, other.data + 9, data);
             }
             return *this;
@@ -316,6 +319,8 @@ public:
 
         mat4& operator=(const mat4& other) {
             if (this != &other) {
+                delete[] data;
+                data = new float[16];
                 std::copy(other.data, other.data + 16, data);
             }
             return *this;
