@@ -231,6 +231,8 @@ void mm::print_mat(mm::mat4& m){
 }
 
 void mm::print_vec(mm::vec2& v){
+    std::cout << std::setprecision(2) << std::fixed;
+
     for(int i=0; i<2; i++){
         std::cout << v(i) << '\t';
     }
@@ -240,6 +242,8 @@ void mm::print_vec(mm::vec2& v){
 }
 
 void mm::print_vec(mm::vec3& v){
+    std::cout << std::setprecision(2) << std::fixed;
+
     for(int i=0; i<3; i++){
         std::cout << v(i) << '\t';
     }
@@ -249,6 +253,8 @@ void mm::print_vec(mm::vec3& v){
 }
 
 void mm::print_vec(mm::vec4& v){
+    std::cout << std::setprecision(2) << std::fixed;
+
     for(int i=0; i<4; i++){
         std::cout << v(i) << '\t';
     }

@@ -1,28 +1,16 @@
+size 640 480
 
-
-
-output test_out.png
-size 600 600
-camera 0 0 5  0 0 0  0 1 0  70
-
-
-#directional 0 0 1 0 0.5 0
-#directional -1 3 1 0 0 0.7
-
-point 1.5 1.5 2  1 1 1
-
-diffuse 0.5 0.5 0.5
-specular 0.5 0.5 0.5
-shininess 10.0
-ambient 0.05 0.05 0.05
+camera 0 -4 4 0 -1 0 0 1 1 45
 
 
 
 pushTransform
-
-    #translate 0 0 0
-    #rotate 0 0 1 -80
-    #scale 1 1 1
-
-    sphere 0 0 0 0.5
+    scale 3 3 3
 popTransform
+
+pushTransform
+
+
+
+
+

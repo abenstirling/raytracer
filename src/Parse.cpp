@@ -149,13 +149,15 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             float tz = vals[2];
 
             mm::mat4 T = Transform::translate(tx,ty,tz);
-            mm::mat4 &Top = t_stack.top();
-            Top = Top * T;
+            mm::mat4 Top = t_stack.top();
+            t_stack.pop();
+            t_stack.push(Top * T);
 
             mm::mat4 T_inv(1.0);
             inv_T(T,T_inv);
-            mm::mat4 &inv_t = inv_t_stack.top();
-            inv_t = T_inv * inv_t;
+            mm::mat4 inv_t = inv_t_stack.top();
+            inv_t_stack.pop();
+            inv_t_stack.push(T_inv * inv_t);
 
         }
 
@@ -173,13 +175,16 @@ void Parse::parse_file(Scene* scene, const char* file_name){
               }
             }
 
-            mm::mat4 &T = t_stack.top();
-            T = T * R4;
+            mm::mat4 T = t_stack.top();
+            t_stack.pop();
+            t_stack.push(T * R4);
 
             mm::mat4 R_inv(1.0);
             inv_R(R4,R_inv);
-            mm::mat4 &inv_t = inv_t_stack.top();
-            inv_t = R_inv * inv_t;
+
+            mm::mat4 inv_t = inv_t_stack.top();
+            inv_t_stack.pop();
+            inv_t_stack.push(R_inv * inv_t);
 
         }
 
@@ -190,32 +195,40 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             const float sz = vals[2];
 
             mm::mat4 Scale = Transform::scale(sx,sy,sz);
-            mm::mat4 &T = t_stack.top();
-            T = T * Scale;
+            mm::mat4 T = t_stack.top();
+            t_stack.pop();
+            t_stack.push(T * Scale);
 
             mm::mat4 S_inv(1.0);
             inv_S(Scale,S_inv);
-            mm::mat4 &inv_t = inv_t_stack.top();
-            inv_t = S_inv * inv_t;
+            mm::mat4 inv_t = inv_t_stack.top();
+            inv_t_stack.pop();
+            inv_t_stack.push(S_inv * inv_t);
         }
 
         else if (cmd == "pushTransform"){
-          t_stack.push(t_stack.top());
-          inv_t_stack.push(inv_t_stack.top());
+            mm::mat4 t = t_stack.top();
+            t_stack.push(t);
+
+            mm::mat4 inv_t = inv_t_stack.top();
+            inv_t_stack.push(inv_t);
+
+            // std::cout << t_stack.size() << std::endl;
+            // mm::print_mat(t_stack.top());
 
         }
 
         else if(cmd == "popTransform") {
-          if (t_stack.size() <= 1) {
-            std::cerr << "t_stack has no elements.  Cannot Pop" << std::endl;
-          } else {
-            t_stack.pop();
-          }
-          if (inv_t_stack.size() <= 1) {
-            std::cerr << "inv_t_stack has no elements.  Cannot Pop" << std::endl;
-          } else {
-            inv_t_stack.pop();
-          }
+            if (t_stack.size() <= 1) {
+                std::cerr << "t_stack has no elements.  Cannot Pop" << std::endl;
+            } else {
+                t_stack.pop();
+            }
+            if (inv_t_stack.size() <= 1) {
+                std::cerr << "inv_t_stack has no elements.  Cannot Pop" << std::endl;
+            } else {
+                inv_t_stack.pop();
+            }
         }
         //lights
         else if(cmd == "directional"){
@@ -284,9 +297,8 @@ void Parse::parse_file(Scene* scene, const char* file_name){
 
         // }
 
-        // std::cout << cur_line << std::endl;
     }
-    // file.close();
+    file.close();
 }
 
 

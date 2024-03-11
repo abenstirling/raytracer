@@ -47,6 +47,8 @@ void Render::compute(){
     // mm::print_vec(scene->lights[0].color);
 
     for(int y=0; y<scene->height; y++){
+        std::cout << std::setprecision(2) << std::fixed;
+        std::cout << (float)y/scene->height << std::endl;
         for(int x=0; x<scene->width; x++){
 
             Ray ray = gen_ray(y, x);
@@ -88,7 +90,7 @@ void Render::write(){
 bool Render::trace(const Ray& ray, Intersection* inter){
     float min_t = std::numeric_limits<float>::infinity();
 
-    Intersection* it = new Intersection;
+    Intersection* cur_inter = new Intersection;
     inter->t = std::numeric_limits<float>::infinity();
 
 
@@ -121,26 +123,26 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 
         if(t0>0 && t1>0){
             if(t0<t1){
-                it->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
-                it->t = t0;
+                cur_inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
+                cur_inter->t = t0;
             }else{
-                it->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
-                it->t = t1;
+                cur_inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
+                cur_inter->t = t1;
             }
         }
         else if(t0>0 && t1<0){
-            it->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
-            it->t = t0;
+            cur_inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
+            cur_inter->t = t0;
         }
         else if(t0<0 && t1>0){
-            it->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
-            it->t = t1;
+            cur_inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
+            cur_inter->t = t1;
         }
 
 
-        if(it->t < inter->t){
-            inter->pos = it->pos;
-            inter->t = it->t;
+        if(cur_inter->t < inter->t){
+            inter->pos = cur_inter->pos;
+            inter->t = cur_inter->t;
             inter->diffuse = s.diffuse;
             inter->specular = s.specular;
             inter->shininess = s.shininess;
@@ -198,7 +200,7 @@ bool Render::trace(const Ray& ray, Intersection* inter){
             }
     }
 
-    delete(it);
+    delete(cur_inter);
     if(inter->t == INFINITY)
         return false;
     return true;
