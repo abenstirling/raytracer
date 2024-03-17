@@ -12,6 +12,9 @@ int main(int argc, char* argv[]){
 
     Scene *scene = new Scene();
     Parse::parse_file(scene, argv[1]);
+    // std::cout << scene->spheres[0].inv_transform << std::endl;
+    std::cout << scene->camera.eye << std::endl;
+    //
     Render *render = new Render(scene);
 
     render->compute();

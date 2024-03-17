@@ -4,7 +4,7 @@
 #include "Scene.h"
 #include "Transform.h"
 
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 
 #include <sstream>
 #include <fstream>

@@ -24,10 +24,10 @@ Render::Ray Render::gen_ray(int y, int x){
     float beta = tan(fovy/2.0 * M_PI/180.0) * (scene->height / 2.0 - y) / (scene->height / 2.0);
 
     // orthonormal basis vectors
-    Eigen::Vector3f w = mm::normalize(scene->camera.eye - scene->camera.center); // Points away from the look direction
-    Eigen::Vector3f u = mm::normalize(mm::cross(scene->camera.up, w)); // Right vector
-    Eigen::Vector3f v = mm::cross(w, u); // Actual up vector
-    Eigen::Vector3f ray_dir = mm::normalize(alpha * u + beta * v - w);
+    Eigen::Vector3f w = (scene->camera.eye - scene->camera.center).normalized(); // Points away from the look direction
+    Eigen::Vector3f u = (scene->camera.up.cross(w)).normalized(); // mm::normalize(mm::cross(scene->camera.up, w)); // Right vector
+    Eigen::Vector3f v = w.cross(u); //mm::cross(w, u); // Actual up vector
+    Eigen::Vector3f ray_dir = (alpha * u + beta * v - w).normalized(); // mm::normalize(alpha * u + beta * v - w);
 
     ray.origin = scene->camera.eye;
     ray.dir = ray_dir;
@@ -47,15 +47,16 @@ void Render::computeChunk(int start_y, int end_y) {
                 // mm::print_vec(hit.normal);
 
                 //lighting calculation
-                Eigen::Vector3f color(0.0);
+                Eigen::Vector3f color = Eigen::Vector3f::Zero();
+
                 calc_color(ray, hit, &color);
                 // std::cout << (hit.mat) << std::endl;
                 // exit(0);
 
                 int pos = (y*scene->width + x)*3;
-                data[pos +0] = static_cast<uint8_t>(std::min(int(color.x * 255.0f), 255));
-                data[pos +1] = static_cast<uint8_t>(std::min(int(color.y * 255.0f), 255));
-                data[pos +2] = static_cast<uint8_t>(std::min(int(color.z * 255.0f), 255));
+                data[pos +0] = static_cast<uint8_t>(std::min(int(color[0] * 255.0f), 255));
+                data[pos +1] = static_cast<uint8_t>(std::min(int(color[1] * 255.0f), 255));
+                data[pos +2] = static_cast<uint8_t>(std::min(int(color[2] * 255.0f), 255));
                 // data[pos +0] = static_cast<uint8_t>(0.0 * 255.0);
                 // data[pos +1] = static_cast<uint8_t>(0.6 * 255.0);
                 // data[pos +2] = static_cast<uint8_t>(0.3 * 255.0);
@@ -121,31 +122,30 @@ void Render::write(){
 
 
 bool Render::trace(const Ray& ray, Intersection* inter){
-    float min_t = std::numeric_limits<float>::infinity();
+    //float min_t = std::numeric_limits<float>::infinity();
 
     Intersection* cur_inter = new Intersection;
     inter->t = std::numeric_limits<float>::infinity();
 
 
     for(Sphere s : scene->spheres){
-        // std::cout << "t" << std::endl;
-        // mm::print_mat(s.transform);
-        // std::cout << "inv" << std::endl;
-        // mm::print_mat(s.inv_transform);
-        // std::cout << "I?" << std::endl;
-        // Eigen::Matrix4f test = s.inv_transform * s.transform;
-        // mm::print_mat(test);
+        // Eigen::Vector3f p0 = (s.inv_transform * Eigen::Vector4f(ray.origin, 1.0)).xyz();
+        Eigen::Vector4f temp;
+        temp << ray.origin, 1.0;
+        Eigen::Vector4f temp2 = (s.inv_transform * temp);
+        Eigen::Vector3f p0 = temp2.head<3>();
 
-        Eigen::Vector3f p0 = (s.inv_transform * Eigen::Vector4f(ray.origin, 1.0)).xyz();
-        Eigen::Vector3f p1 = (s.inv_transform * Eigen::Vector4f(ray.dir, 0.0)).xyz();
+        temp << ray.dir, 0.0;
+        temp2 = (s.inv_transform * temp);
+        Eigen::Vector3f p1 = temp2.head<3>();
         Eigen::Vector3f center = s.pos;
         float r = s.radius;
 
-        float a = p1 * p1;
-        float b = 2.0 * p1 * (p0 - center);
-        float c = (p0 - center) * (p0 - center) - r*r;
+        float a = p1.dot(p1);
+        float b = 2.0 * p1.dot(p0 - center);
+        float c = (p0 - center).dot(p0 - center) - r*r;
 
-        float disc = b*b - 4.0 * a *c;
+        float disc = b*b - 4.0 * a * c;
         if(disc<0)//no intersection
             continue;
 
@@ -156,19 +156,35 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 
         if(t0>0 && t1>0){
             if(t0<t1){
-                cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).xyz();
+                // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).head<3>();
+                Eigen::Vector3f temp = p0+p1*t0;
+                Eigen::Vector4f temp2;
+                temp2 << temp, 1.0;
+                cur_inter->pos = (s.transform * temp2).head<3>();
                 cur_inter->t = t0;
             }else{
-                cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).xyz();
+                // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).head<3>();
+                Eigen::Vector3f temp = p0+p1*t1;
+                Eigen::Vector4f temp2;
+                temp2 << temp, 1.0;
+                cur_inter->pos = (s.transform * temp2).head<3>();
                 cur_inter->t = t1;
             }
         }
         else if(t0>0 && t1<0){
-            cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).xyz();
+            // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).head<3>();
+            Eigen::Vector3f temp = p0+p1*t0;
+            Eigen::Vector4f temp2;
+            temp2 << temp, 1.0;
+            cur_inter->pos = (s.transform * temp2).head<3>();
             cur_inter->t = t0;
         }
         else if(t0<0 && t1>0){
-            cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).xyz();
+            // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).head<3>();
+            Eigen::Vector3f temp = p0+p1*t1;
+            Eigen::Vector4f temp2;
+            temp2 << temp, 1.0;
+            cur_inter->pos = (s.transform * temp2).head<3>();
             cur_inter->t = t1;
         }
 
@@ -184,8 +200,11 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         }
 
 
-        Eigen::Vector3f n = mm::normalize(inter->pos - center);
-        inter->normal = ((s.inv_transform).T() * Eigen::Vector4f(n,0.0)).xyz();
+        Eigen::Vector3f n = (inter->pos - s.pos).normalized();
+        Eigen::Vector4f n_hom;
+        n_hom << n, 0.0;
+        Eigen::Vector4f rslt = ((s.inv_transform).transpose()) * n_hom;
+        inter->normal = rslt.head<3>();
     }
 
 
@@ -245,11 +264,13 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector
     //ray: origin, dir
 
     for(Light light : scene->lights){
-        Eigen::Vector3f eye_dir_form_point = mm::normalize(ray.origin - inter.pos);
+        Eigen::Vector3f eye_dir = (ray.origin - inter.pos).normalized();
+        // Eigen::Vector3f eye_dir_form_point = (ray.origin - inter.pos);
+
 
         if(!light.is_point){ //directional
-            Eigen::Vector3f light_dir = mm::normalize(light.pos);
-            Eigen::Vector3f half_vec = mm::normalize (light_dir + eye_dir_form_point);
+            Eigen::Vector3f light_dir = (light.pos).normalized();
+            Eigen::Vector3f half_vec = (light_dir + eye_dir).normalized();
             lambert_phong(light,
                           light_dir,
                           inter.normal,
@@ -258,9 +279,10 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector
                           inter.specular,
                           inter.shininess,
                           color);
+
         }else if(light.is_point){//point
-            Eigen::Vector3f light_dir = mm::normalize(light.pos - inter.pos);
-            Eigen::Vector3f half_vec = mm::normalize(light_dir + eye_dir_form_point);
+            Eigen::Vector3f light_dir = (light.pos - inter.pos).normalized();
+            Eigen::Vector3f half_vec = (light_dir + eye_dir).normalized();
             lambert_phong(light,
                           light_dir,
                           inter.normal,
@@ -276,6 +298,8 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector
     *color = *color + inter.ambient + inter.emission;
 }
 
+
+
 void Render::lambert_phong(const Light& light,
                    const Eigen::Vector3f& dir,
                    const Eigen::Vector3f& normal,
@@ -285,15 +309,13 @@ void Render::lambert_phong(const Light& light,
                    const float& shininess,
                    Eigen::Vector3f* pix_color) {
     //
-    float nDotL = normal * dir;
-    Eigen::Vector3f lambert =  diffuse* std::max(nDotL, 0.0f) ;
-    float nDotH = normal * half_vec;
-    Eigen::Vector3f phong = specular * pow(std::max(nDotH, 0.0f), shininess);
+    float nDotL = normal.dot(dir);
+    Eigen::Vector3f lambert =  diffuse.cwiseProduct(light.color) *  std::max(nDotL, 0.0f) ;
+    float nDotH = normal.dot(half_vec);
+    Eigen::Vector3f phong = specular.cwiseProduct(light.color) * pow(std::max(nDotH, 0.0f), shininess);
 
     Eigen::Vector3f lp = (lambert + phong);
 
-    *pix_color = *pix_color + Eigen::Vector3f(lp.x*light.color.x,
-                                       lp.y*light.color.y,
-                                       lp.z*light.color.z);
+    *pix_color = *pix_color + lp;
 
 }

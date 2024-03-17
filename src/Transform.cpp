@@ -11,19 +11,23 @@ float radians(float degrees){
 
 Eigen::Matrix3f Transform::rotate(const float degrees, const Eigen::Vector3f& axis)
 {
-  Eigen::Vector3f norm_axis = axis.normalize();
+  Eigen::Vector3f norm_axis = axis.normalized();
   float x = norm_axis[0];
   float y = norm_axis[1];
   float z = norm_axis[2];
   float theta = radians(degrees);
 
+  Eigen::Matrix3f K;
+  K << 0, -z, y,
+        z, 0, -x,
+        -y, x, 0;
+  Eigen::Matrix3f KK;
+  KK << x*x, x*y, x*z,
+        x*y, y*y, y*z,
+        x*z, y*z, z*z;
   return cos(theta) * Eigen::Matrix3f::Identity() +
-        (1 - cos(theta)) * Eigen::Matrix3f(x*x, x*y, x*z,
-                                    x*y, y*y, y*z,
-                                    x*z, y*z, z*z) +
-        sin(theta) * Eigen::Matrix3f(0, -z, y,
-                              z, 0, -x,
-                              -y, x, 0);
+        (1 - cos(theta)) * KK +
+        sin(theta) * K;
 
 
 }
@@ -31,12 +35,12 @@ Eigen::Matrix3f Transform::rotate(const float degrees, const Eigen::Vector3f& ax
 void Transform::left(float degrees, Eigen::Vector3f& eye, Eigen::Vector3f& up)
 {
   eye = rotate(degrees, up) * eye;
-  up = (rotate(degrees, up) * up).normalize();
+  up = (rotate(degrees, up) * up).normalized();
 }
 
 void Transform::up(float degrees, Eigen::Vector3f& eye, Eigen::Vector3f& up)
 {
-  Eigen::Vector3f left = (eye.cross(up)).normalize();
+  Eigen::Vector3f left = (eye.cross(up)).normalized();
   eye = rotate(degrees, left) * eye;
   up = rotate(degrees, left) * up;
 }
@@ -46,21 +50,24 @@ Eigen::Matrix4f Transform::lookAt(const Eigen::Vector3f &eye, const Eigen::Vecto
   Eigen::Vector3f a = eye-center;
   Eigen::Vector3f b = up;
 
-  Eigen::Vector3f w = a.normalize();
-  Eigen::Vector3f u = b.cross(a).normalize();// (Eigen::cross(b,a)).normalize();
-  Eigen::Vector3f v = w.cross(u).normalize();// (Eigen::cross(w,u)).normalize();
+  Eigen::Vector3f w = a.normalized();
+  Eigen::Vector3f u = b.cross(a).normalized();// (Eigen::cross(b,a)).normalize();
+  Eigen::Vector3f v = w.cross(u).normalized();// (Eigen::cross(w,u)).normalize();
 
   // return Eigen::Matrix4f(u[0],v[0],w[0],0,   u[1],v[1],w[1],0,   u[2],v[2],w[2],0,   -(u*eye), -(v*eye), -(w*eye), 1);
-  return Eigen::Matrix4f(u[0], u[1], u[2], -(u*eye),
-                  v[0], v[1], v[2], -(v*eye),
-                  w[0], w[1], w[2], -(w*eye),
-                  0.0, 0.0, 0.0, 1.0);
+
+  Eigen::Matrix4f ret;
+  ret << u[0], u[1], u[2], -(u.dot(eye)),
+        v[0], v[1], v[2], -(v.dot(eye)),
+        w[0], w[1], w[2], -(w.dot(eye)),
+        0.0, 0.0, 0.0, 1.0;
+  return ret;
 }
 
 Eigen::Matrix4f Transform::perspective(float fovy, float aspect, float zNear, float zFar)
 {
   float rads = tan(radians(fovy)/2);
-  Eigen::Matrix4f P(0.0f);
+  Eigen::Matrix4f P = Eigen::Matrix4f::Zero();
   P(0,0) = 1.0 / (aspect * rads);
   P(1,1) = 1.0 / (rads);
 
@@ -104,7 +111,7 @@ Eigen::Matrix4f Transform::translate(const float &tx, const float &ty, const flo
 Eigen::Vector3f Transform::upvector(const Eigen::Vector3f &up, const Eigen::Vector3f & zvec){
     Eigen::Vector3f x = up.cross(zvec);
     Eigen::Vector3f y = zvec.cross(x);
-    Eigen::Vector3f ret = y.normalize();
+    Eigen::Vector3f ret = y.normalized();
     return ret;
 }
 

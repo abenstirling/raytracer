@@ -155,8 +155,13 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             t_stack.pop();
             t_stack.push(Top * T);
 
-            Eigen::Matrix4f T_inv(1.0);
-            inv_T(T,T_inv);
+            Eigen::Matrix4f T_inv = Eigen::Matrix4f::Identity();
+
+            // inv_T(T,T_inv);
+            T_inv(0,3) = -T(0,3);
+            T_inv(1,3) = -T(1,3);
+            T_inv(2,3) = -T(2,3);
+
             Eigen::Matrix4f inv_t = inv_t_stack.top();
             inv_t_stack.pop();
             inv_t_stack.push(T_inv * inv_t);
@@ -169,7 +174,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             float degrees = vals[3];
 
             Eigen::Matrix3f R = Transform::rotate(degrees, axis);
-            Eigen::Matrix4f R4(1.0f);
+            Eigen::Matrix4f R4 = Eigen::Matrix4f::Identity();
 
             for(int y=0; y<3; y++){
               for(int x=0; x<3; x++){
@@ -181,8 +186,9 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             t_stack.pop();
             t_stack.push(T * R4);
 
-            Eigen::Matrix4f R_inv(1.0);
-            inv_R(R4,R_inv);
+            Eigen::Matrix4f R_inv = Eigen::Matrix4f::Identity();
+            //inv_R(R4,R_inv);
+            R_inv = R4.transpose();
 
             Eigen::Matrix4f inv_t = inv_t_stack.top();
             inv_t_stack.pop();
@@ -201,8 +207,11 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             t_stack.pop();
             t_stack.push(T * Scale);
 
-            Eigen::Matrix4f S_inv(1.0);
-            inv_S(Scale,S_inv);
+            Eigen::Matrix4f S_inv = Scale;
+            S_inv(0,0) = 1/S_inv(0,0);
+            S_inv(1,1) = 1/S_inv(1,1);
+            S_inv(2,2) = 1/S_inv(2,2);
+            //inv_S(Scale,S_inv);
             Eigen::Matrix4f inv_t = inv_t_stack.top();
             inv_t_stack.pop();
             inv_t_stack.push(S_inv * inv_t);

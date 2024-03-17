@@ -5,7 +5,7 @@
 #include "Scene.h"
 #include "stb_image_write.h"
 
-#include <Eigen/Dense>
+#include "Eigen/Dense"
 
 #include <limits>
 #include <algorithm>
@@ -28,7 +28,7 @@ private: //vars
         Eigen::Vector3f dir;
         Ray(Eigen::Vector3f origin_, Eigen::Vector3f dir_)
             : origin(origin_), dir(dir_) {}
-        Ray() : origin(Eigen::Vector3f(0.0)), dir(Eigen::Vector3f(0.0)) {}
+        Ray() : origin(Eigen::Vector3f(0.0,0.0,0.0)), dir(Eigen::Vector3f(0.0, 0.0, 0.0)) {}
     };
 
     struct Intersection{
@@ -42,11 +42,11 @@ private: //vars
         Eigen::Vector3f emission;
         Eigen::Vector3f ambient;
 
-        Intersection() : pos(Eigen::Vector3f(0.0)), normal(Eigen::Vector3f(0.0)), t(INFINITY),
-            diffuse(Eigen::Vector3f(0.0)), specular(Eigen::Vector3f(0.0)), shininess(0.0f), emission(Eigen::Vector3f(0.0)), ambient(Eigen::Vector3f(0.0)){}
+        Intersection() : pos(Eigen::Vector3f(0.0,0.0,0.0)), normal(Eigen::Vector3f(0.0,0.0,0.0)), t(INFINITY),
+            diffuse(Eigen::Vector3f(0.0,0.0,0.0)), specular(Eigen::Vector3f(0.0,0.0,0.0)), shininess(0.0f), emission(Eigen::Vector3f(0.0,0.0,0.0)), ambient(Eigen::Vector3f(0.0,0.0,0.0)){}
         Intersection(Eigen::Vector3f pos_, Eigen::Vector3f normal_)
             : pos(pos_), normal(normal_), t(INFINITY),
-            diffuse(Eigen::Vector3f(0.0)), specular(Eigen::Vector3f(0.0)), shininess(0.0f), emission(Eigen::Vector3f(0.0)), ambient(Eigen::Vector3f(0.0)) {}
+            diffuse(Eigen::Vector3f(0.0,0.0,0.0)), specular(Eigen::Vector3f(0.0,0.0,0.0)), shininess(0.0f), emission(Eigen::Vector3f(0.0,0.0,0.0)), ambient(Eigen::Vector3f(0.0,0.0,0.0)) {}
     };
 
 public: //fn
