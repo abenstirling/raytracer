@@ -7,7 +7,7 @@ Material::Material()
     shininess(0.0),
     emission(0.0),
     ambient(0.0){}
-Material::Material(mm::vec3 diffuse_,  mm::vec3 specular_, float shininess_, mm::vec3 emission_, mm::vec3 ambient_)
+Material::Material(Eigen::Vector3f diffuse_,  Eigen::Vector3f specular_, float shininess_, Eigen::Vector3f emission_, Eigen::Vector3f ambient_)
     : diffuse(diffuse_),
     specular(specular_),
     shininess(shininess_),
@@ -18,54 +18,54 @@ Triangle::Triangle(float ax, float ay, float az,
         float bx, float by, float bz,
         float cx, float cy, float cz)
     :
-    a(mm::vec3(ax,ay,az)), b(mm::vec3(bx,by,bz)), c(mm::vec3(cx,cy,cz)),
+    a(Eigen::Vector3f(ax,ay,az)), b(Eigen::Vector3f(bx,by,bz)), c(Eigen::Vector3f(cx,cy,cz)),
     normals_defined(false),
     na(0), nb(0), nc(0),
-    transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)) {}
-Triangle::Triangle(mm::vec3 a_, mm::vec3 b_, mm::vec3 c_)
+    transform(Eigen::Matrix4f(1.0)),
+    inv_transform(Eigen::Matrix4f(1.0)) {}
+Triangle::Triangle(Eigen::Vector3f a_, Eigen::Vector3f b_, Eigen::Vector3f c_)
     :
     a(a_), b(b_), c(c_),
     normals_defined(false),
     na(0), nb(0), nc(0),
-    transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)) {}
+    transform(Eigen::Matrix4f(1.0)),
+    inv_transform(Eigen::Matrix4f(1.0)) {}
 Triangle::Triangle(vert_norm a_,vert_norm b_, vert_norm c_):
     a(a_.pos), b(b_.pos), c(c_.pos),
     normals_defined(true),
     na(a_.normal), nb(b_.normal), nc(c_.normal),
-    transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)) {}
+    transform(Eigen::Matrix4f(1.0)),
+    inv_transform(Eigen::Matrix4f(1.0)) {}
 
 
-Sphere::Sphere(mm::vec3 pos_, float radius_)
+Sphere::Sphere(Eigen::Vector3f pos_, float radius_)
     :
     pos(pos_), radius(radius_),
-    transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)) {}
+    transform(Eigen::Matrix4f(1.0)),
+    inv_transform(Eigen::Matrix4f(1.0)) {}
 Sphere::Sphere(float x, float y, float z, float radius_)
     :
-    pos(mm::vec3(x,y,z)), radius(radius_),
-    transform(mm::mat4(1.0)),
-    inv_transform(mm::mat4(1.0)) {}
+    pos(Eigen::Vector3f(x,y,z)), radius(radius_),
+    transform(Eigen::Matrix4f(1.0)),
+    inv_transform(Eigen::Matrix4f(1.0)) {}
 
 Light::Light()
-    : pos(mm::vec3(0)), color(mm::vec3(0)), is_point(false) {}
-Light::Light(mm::vec3 pos_, mm::vec3 color_, bool is_point_)
+    : pos(Eigen::Vector3f(0)), color(Eigen::Vector3f(0)), is_point(false) {}
+Light::Light(Eigen::Vector3f pos_, Eigen::Vector3f color_, bool is_point_)
     : pos(pos_), color(color_), is_point(is_point_) {}
 
-Camera::Camera(mm::vec3 eye_, mm::vec3 center_, mm::vec3 up_, float fovy_)
+Camera::Camera(Eigen::Vector3f eye_, Eigen::Vector3f center_, Eigen::Vector3f up_, float fovy_)
     : eye(eye_), center(center_), up(up_), fovy(fovy_) {}
 Camera::Camera(float ex, float ey, float ez,
     float cx, float cy, float cz,
     float ux, float uy, float uz,
     float fovy_)
-    : eye(mm::vec3(ex,ey,ez)),
-    center(mm::vec3(cx,cy,cz)),
-    up(mm::vec3(ux,uy,uz)),
+    : eye(Eigen::Vector3f(ex,ey,ez)),
+    center(Eigen::Vector3f(cx,cy,cz)),
+    up(Eigen::Vector3f(ux,uy,uz)),
     fovy(fovy_) {}
 Camera::Camera()
-    :eye(mm::vec3(0.0)),
-    center(mm::vec3(0.0)),
-    up(mm::vec3(0.0)),
+    :eye(Eigen::Vector3f(0.0)),
+    center(Eigen::Vector3f(0.0)),
+    up(Eigen::Vector3f(0.0)),
     fovy(0.0) {}

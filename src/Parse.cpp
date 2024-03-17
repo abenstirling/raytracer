@@ -4,13 +4,13 @@
 #include <string>
 #include <stack>
 
-std::vector<mm::vec3> Parse::vertices;
+std::vector<Eigen::Vector3f> Parse::vertices;
 std::vector<vert_norm> Parse::vertices_norm;
 std::string Parse::cur_cmd;
 uint Parse::cur_line;
 
-void right_multiply(const mm::mat4& M, std::stack<mm::mat4> &t_stack){
-  mm::mat4 &T = t_stack.top();
+void right_multiply(const Eigen::Matrix4f& M, std::stack<Eigen::Matrix4f> &t_stack){
+  Eigen::Matrix4f &T = t_stack.top();
   T = T * M;
 }
 
@@ -23,16 +23,20 @@ void Parse::parse_file(Scene* scene, const char* file_name){
         exit(1);
     }
 
-    std::stack<mm::mat4> t_stack;
-    std::stack<mm::mat4> inv_t_stack;
-    t_stack.push(mm::mat4(1.0));
-    inv_t_stack.push(mm::mat4(1.0));
+    std::stack<Eigen::Matrix4f> t_stack;
+    std::stack<Eigen::Matrix4f> inv_t_stack;
+    t_stack.push(Eigen::Matrix4f::Identity());// t_stack.push(Eigen::Matrix4f(1.0));
+    inv_t_stack.push(Eigen::Matrix4f::Identity());
 
-    mm::vec3 diffuse(0.0);
-    mm::vec3 specular(0.0);
-    mm::vec3 emission(0.0);
+    Eigen::Vector3f diffuse;
+    diffuse.setZero();
+    Eigen::Vector3f specular;
+    specular.setZero();
+    Eigen::Vector3f emission;
+    emission.setZero();
     float shininess = 0.0;
-    mm::vec3 ambient(0.0);
+    Eigen::Vector3f ambient;
+    ambient.setZero();
 
 
 
@@ -66,18 +70,16 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             ss >> out_file;
             scene->out_file = out_file.c_str();
 
-
-
         }
         //verticies
         else if(cmd == "vertex"){
             read_vals(ss, 3, vals);
-            vertices.push_back(mm::vec3(vals[0],vals[1],vals[2]));
+            vertices.push_back(Eigen::Vector3f(vals[0],vals[1],vals[2]));
         }
         else if(cmd == "vertexnormal"){
             read_vals(ss, 6, vals);
-            vertices_norm.push_back(vert_norm(mm::vec3(vals[0],vals[1],vals[2]),
-                                  mm::vec3(vals[3],vals[4],vals[5])));
+            vertices_norm.push_back(vert_norm(Eigen::Vector3f(vals[0],vals[1],vals[2]),
+                                  Eigen::Vector3f(vals[3],vals[4],vals[5])));
         }
         //triangle a b c
         else if(cmd == "tri"){
@@ -148,14 +150,14 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             float ty = vals[1];
             float tz = vals[2];
 
-            mm::mat4 T = Transform::translate(tx,ty,tz);
-            mm::mat4 Top = t_stack.top();
+            Eigen::Matrix4f T = Transform::translate(tx,ty,tz);
+            Eigen::Matrix4f Top = t_stack.top();
             t_stack.pop();
             t_stack.push(Top * T);
 
-            mm::mat4 T_inv(1.0);
+            Eigen::Matrix4f T_inv(1.0);
             inv_T(T,T_inv);
-            mm::mat4 inv_t = inv_t_stack.top();
+            Eigen::Matrix4f inv_t = inv_t_stack.top();
             inv_t_stack.pop();
             inv_t_stack.push(T_inv * inv_t);
 
@@ -163,11 +165,11 @@ void Parse::parse_file(Scene* scene, const char* file_name){
 
         else if(cmd == "rotate"){
             read_vals(ss,4,vals);
-            mm::vec3 axis(vals[0], vals[1], vals[2]);
+            Eigen::Vector3f axis(vals[0], vals[1], vals[2]);
             float degrees = vals[3];
 
-            mm::mat3 R = Transform::rotate(degrees, axis);
-            mm::mat4 R4(1.0f);
+            Eigen::Matrix3f R = Transform::rotate(degrees, axis);
+            Eigen::Matrix4f R4(1.0f);
 
             for(int y=0; y<3; y++){
               for(int x=0; x<3; x++){
@@ -175,14 +177,14 @@ void Parse::parse_file(Scene* scene, const char* file_name){
               }
             }
 
-            mm::mat4 T = t_stack.top();
+            Eigen::Matrix4f T = t_stack.top();
             t_stack.pop();
             t_stack.push(T * R4);
 
-            mm::mat4 R_inv(1.0);
+            Eigen::Matrix4f R_inv(1.0);
             inv_R(R4,R_inv);
 
-            mm::mat4 inv_t = inv_t_stack.top();
+            Eigen::Matrix4f inv_t = inv_t_stack.top();
             inv_t_stack.pop();
             inv_t_stack.push(R_inv * inv_t);
 
@@ -194,23 +196,23 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             const float sy = vals[1];
             const float sz = vals[2];
 
-            mm::mat4 Scale = Transform::scale(sx,sy,sz);
-            mm::mat4 T = t_stack.top();
+            Eigen::Matrix4f Scale = Transform::scale(sx,sy,sz);
+            Eigen::Matrix4f T = t_stack.top();
             t_stack.pop();
             t_stack.push(T * Scale);
 
-            mm::mat4 S_inv(1.0);
+            Eigen::Matrix4f S_inv(1.0);
             inv_S(Scale,S_inv);
-            mm::mat4 inv_t = inv_t_stack.top();
+            Eigen::Matrix4f inv_t = inv_t_stack.top();
             inv_t_stack.pop();
             inv_t_stack.push(S_inv * inv_t);
         }
 
         else if (cmd == "pushTransform"){
-            mm::mat4 t = t_stack.top();
+            Eigen::Matrix4f t = t_stack.top();
             t_stack.push(t);
 
-            mm::mat4 inv_t = inv_t_stack.top();
+            Eigen::Matrix4f inv_t = inv_t_stack.top();
             inv_t_stack.push(inv_t);
 
             // std::cout << t_stack.size() << std::endl;
@@ -242,7 +244,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             float g = vals[4];
             float b = vals[5];
 
-            Light l(mm::vec3(x,y,z), mm::vec3(r,g,b), false);
+            Light l(Eigen::Vector3f(x,y,z), Eigen::Vector3f(r,g,b), false);
             scene->add_light(l);
         }
         else if(cmd == "point"){
@@ -256,7 +258,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             float g = vals[4];
             float b = vals[5];
 
-            Light l(mm::vec3(x,y,z), mm::vec3(r,g,b), true);
+            Light l(Eigen::Vector3f(x,y,z), Eigen::Vector3f(r,g,b), true);
             scene->add_light(l);
         }
         else if(cmd == "attenuation"){
@@ -266,21 +268,21 @@ void Parse::parse_file(Scene* scene, const char* file_name){
         else if(cmd == "ambient"){
             //ambient r g b
             read_vals(ss,3,vals);
-            ambient = mm::vec3(vals[0], vals[1], vals[2]);
+            ambient = Eigen::Vector3f(vals[0], vals[1], vals[2]);
         }
         //materials
         else if(cmd == "diffuse"){
             read_vals(ss,3,vals);
-            diffuse = mm::vec3(vals[0], vals[1], vals[2]);
+            diffuse = Eigen::Vector3f(vals[0], vals[1], vals[2]);
         }
         else if(cmd == "specular"){
             read_vals(ss,3,vals);
-            specular = mm::vec3(vals[0], vals[1], vals[2]);
+            specular = Eigen::Vector3f(vals[0], vals[1], vals[2]);
 
         }
         else if(cmd == "emission"){
             read_vals(ss,3,vals);
-            emission = mm::vec3(vals[0], vals[1], vals[2]);
+            emission = Eigen::Vector3f(vals[0], vals[1], vals[2]);
         }
         else if(cmd == "shininess"){
             read_vals(ss,1,vals);

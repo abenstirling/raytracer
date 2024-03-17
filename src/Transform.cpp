@@ -9,58 +9,58 @@ float radians(float degrees){
     return degrees * (M_PI / 180.0);
 }
 
-mm::mat3 Transform::rotate(const float degrees, const mm::vec3& axis)
+Eigen::Matrix3f Transform::rotate(const float degrees, const Eigen::Vector3f& axis)
 {
-  mm::vec3 norm_axis = mm::normalize(axis);
-  float x = norm_axis.x;
-  float y = norm_axis.y;
-  float z = norm_axis.z;
+  Eigen::Vector3f norm_axis = axis.normalize();
+  float x = norm_axis[0];
+  float y = norm_axis[1];
+  float z = norm_axis[2];
   float theta = radians(degrees);
 
-  return cos(theta) * mm::mat3(1.0) +
-        (1 - cos(theta)) * mm::mat3(x*x, x*y, x*z,
+  return cos(theta) * Eigen::Matrix3f::Identity() +
+        (1 - cos(theta)) * Eigen::Matrix3f(x*x, x*y, x*z,
                                     x*y, y*y, y*z,
                                     x*z, y*z, z*z) +
-        sin(theta) * mm::mat3(0, -z, y,
+        sin(theta) * Eigen::Matrix3f(0, -z, y,
                               z, 0, -x,
                               -y, x, 0);
 
 
 }
 
-void Transform::left(float degrees, mm::vec3& eye, mm::vec3& up)
+void Transform::left(float degrees, Eigen::Vector3f& eye, Eigen::Vector3f& up)
 {
   eye = rotate(degrees, up) * eye;
-  up = mm::normalize(rotate(degrees, up) * up);
+  up = (rotate(degrees, up) * up).normalize();
 }
 
-void Transform::up(float degrees, mm::vec3& eye, mm::vec3& up)
+void Transform::up(float degrees, Eigen::Vector3f& eye, Eigen::Vector3f& up)
 {
-  mm::vec3 left = mm::normalize(mm::cross(eye,up));
+  Eigen::Vector3f left = (eye.cross(up)).normalize();
   eye = rotate(degrees, left) * eye;
   up = rotate(degrees, left) * up;
 }
 
-mm::mat4 Transform::lookAt(const mm::vec3 &eye, const mm::vec3 &center, const mm::vec3 &up)
+Eigen::Matrix4f Transform::lookAt(const Eigen::Vector3f &eye, const Eigen::Vector3f &center, const Eigen::Vector3f &up)
 {
-  mm::vec3 a = eye-center;
-  mm::vec3 b = up;
+  Eigen::Vector3f a = eye-center;
+  Eigen::Vector3f b = up;
 
-  mm::vec3 w = mm::normalize(a);
-  mm::vec3 u = mm::normalize(mm::cross(b,a));
-  mm::vec3 v = mm::normalize(mm::cross(w,u));
+  Eigen::Vector3f w = a.normalize();
+  Eigen::Vector3f u = b.cross(a).normalize();// (Eigen::cross(b,a)).normalize();
+  Eigen::Vector3f v = w.cross(u).normalize();// (Eigen::cross(w,u)).normalize();
 
-  // return mm::mat4(u.x,v.x,w.x,0,   u.y,v.y,w.y,0,   u.z,v.z,w.z,0,   -(u*eye), -(v*eye), -(w*eye), 1);
-  return mm::mat4(u.x, u.y, u.z, -(u*eye),
-                  v.x, v.y, v.z, -(v*eye),
-                  w.x, w.y, w.z, -(w*eye),
+  // return Eigen::Matrix4f(u[0],v[0],w[0],0,   u[1],v[1],w[1],0,   u[2],v[2],w[2],0,   -(u*eye), -(v*eye), -(w*eye), 1);
+  return Eigen::Matrix4f(u[0], u[1], u[2], -(u*eye),
+                  v[0], v[1], v[2], -(v*eye),
+                  w[0], w[1], w[2], -(w*eye),
                   0.0, 0.0, 0.0, 1.0);
 }
 
-mm::mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
+Eigen::Matrix4f Transform::perspective(float fovy, float aspect, float zNear, float zFar)
 {
   float rads = tan(radians(fovy)/2);
-  mm::mat4 P(0.0f);
+  Eigen::Matrix4f P(0.0f);
   P(0,0) = 1.0 / (aspect * rads);
   P(1,1) = 1.0 / (rads);
 
@@ -76,34 +76,35 @@ mm::mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFa
   return P;
 }
 
-mm::mat4 Transform::scale(const float &sx, const float &sy, const float &sz){
+Eigen::Matrix4f Transform::scale(const float &sx, const float &sy, const float &sz){
 
-    mm::mat4 ret =  mm::mat4(1.0);
+    Eigen::Matrix4f ret =  Eigen::Matrix4f::Identity();
     ret(0,0) = sx;
     ret(1,1) = sy;
     ret(2,2) = sz;
     return ret;
 }
 
-mm::mat4 Transform::translate(const float &tx, const float &ty, const float &tz){
-  // return mm::mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, tx, ty, tz, 1);
-    mm::mat4 ret(1.0);
+Eigen::Matrix4f Transform::translate(const float &tx, const float &ty, const float &tz){
+  // return Eigen::Matrix4f(1,0,0,0, 0,1,0,0, 0,0,1,0, tx, ty, tz, 1);
+
+    Eigen::Matrix4f ret = Eigen::Matrix4f::Identity();
     ret(0,3) = tx;
     ret(1,3) = ty;
     ret(2,3) = tz;
     return ret;
 }
 
-// To normalize the up direction and construct a coordinate frame.
+// To Eigen::normalize the up direction and construct a coordinate frame.
 // As discussed in the lecture.  May be relevant to create a properly
-// orthogonal and normalized up.
+// orthogonal and Eigen::normalized up.
 // This function is provided as a helper, in case you want to use it.
 // Using this function (in readfile.cpp or display.cpp) is optional.
 
-mm::vec3 Transform::upvector(const mm::vec3 &up, const mm::vec3 & zvec){
-    mm::vec3 x = mm::cross(up,zvec);
-    mm::vec3 y = mm::cross(zvec,x);
-    mm::vec3 ret = mm::normalize(y);
+Eigen::Vector3f Transform::upvector(const Eigen::Vector3f &up, const Eigen::Vector3f & zvec){
+    Eigen::Vector3f x = up.cross(zvec);
+    Eigen::Vector3f y = zvec.cross(x);
+    Eigen::Vector3f ret = y.normalize();
     return ret;
 }
 

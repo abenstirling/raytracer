@@ -5,6 +5,8 @@
 #include "Scene.h"
 #include "stb_image_write.h"
 
+#include <Eigen/Dense>
+
 #include <limits>
 #include <algorithm>
 #include <thread>
@@ -22,29 +24,29 @@ private: //vars
 
 
     struct Ray{
-        mm::vec3 origin;
-        mm::vec3 dir;
-        Ray(mm::vec3 origin_, mm::vec3 dir_)
+        Eigen::Vector3f origin;
+        Eigen::Vector3f dir;
+        Ray(Eigen::Vector3f origin_, Eigen::Vector3f dir_)
             : origin(origin_), dir(dir_) {}
-        Ray() : origin(mm::vec3(0.0)), dir(mm::vec3(0.0)) {}
+        Ray() : origin(Eigen::Vector3f(0.0)), dir(Eigen::Vector3f(0.0)) {}
     };
 
     struct Intersection{
-        mm::vec3 pos;
-        mm::vec3 normal;
+        Eigen::Vector3f pos;
+        Eigen::Vector3f normal;
         float t;
 
-        mm::vec3 diffuse;
-        mm::vec3 specular;
+        Eigen::Vector3f diffuse;
+        Eigen::Vector3f specular;
         float shininess;
-        mm::vec3 emission;
-        mm::vec3 ambient;
+        Eigen::Vector3f emission;
+        Eigen::Vector3f ambient;
 
-        Intersection() : pos(mm::vec3(0.0)), normal(mm::vec3(0.0)), t(INFINITY),
-            diffuse(mm::vec3(0.0)), specular(mm::vec3(0.0)), shininess(0.0f), emission(mm::vec3(0.0)), ambient(mm::vec3(0.0)){}
-        Intersection(mm::vec3 pos_, mm::vec3 normal_)
+        Intersection() : pos(Eigen::Vector3f(0.0)), normal(Eigen::Vector3f(0.0)), t(INFINITY),
+            diffuse(Eigen::Vector3f(0.0)), specular(Eigen::Vector3f(0.0)), shininess(0.0f), emission(Eigen::Vector3f(0.0)), ambient(Eigen::Vector3f(0.0)){}
+        Intersection(Eigen::Vector3f pos_, Eigen::Vector3f normal_)
             : pos(pos_), normal(normal_), t(INFINITY),
-            diffuse(mm::vec3(0.0)), specular(mm::vec3(0.0)), shininess(0.0f), emission(mm::vec3(0.0)), ambient(mm::vec3(0.0)) {}
+            diffuse(Eigen::Vector3f(0.0)), specular(Eigen::Vector3f(0.0)), shininess(0.0f), emission(Eigen::Vector3f(0.0)), ambient(Eigen::Vector3f(0.0)) {}
     };
 
 public: //fn
@@ -54,14 +56,14 @@ public: //fn
 
 private: //fn
     bool trace(const Ray& ray, Intersection* inter);
-    void calc_color(const Ray& ray, const Intersection& inter, mm::vec3* color);
+    void calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f* color);
     void lambert_phong(const Light& light,
-                       const mm::vec3& dir,
-                       const mm::vec3& normal,
-                       const mm::vec3& half_vec,
-                       const mm::vec3& diffuse,
-                       const mm::vec3& specular,
+                       const Eigen::Vector3f& dir,
+                       const Eigen::Vector3f& normal,
+                       const Eigen::Vector3f& half_vec,
+                       const Eigen::Vector3f& diffuse,
+                       const Eigen::Vector3f& specular,
                        const float& shininess,
-                       mm::vec3* color);
+                       Eigen::Vector3f* color);
     void computeChunk(int start_y, int end_y);
 };

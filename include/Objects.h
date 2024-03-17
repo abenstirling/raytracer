@@ -1,86 +1,87 @@
 #pragma once
-#include "My_math.h"
+//#include "My_math.h"
+#include <Eigen/Dense>
 
 struct vert_norm{
-    mm::vec3 pos;
-    mm::vec3 normal;
-    vert_norm(mm::vec3 pos_, mm::vec3 normal_)
+    Eigen::Vector3f pos;
+    Eigen::Vector3f normal;
+    vert_norm(Eigen::Vector3f pos_, Eigen::Vector3f normal_)
         : pos(pos_), normal(normal_) {}
 };
 
 class Material{
 public:
     Material();
-    Material(mm::vec3 diffuse_,  mm::vec3 specular_, float shininess_, mm::vec3 emission_, mm::vec3 ambient);
+    Material(Eigen::Vector3f diffuse_,  Eigen::Vector3f specular_, float shininess_, Eigen::Vector3f emission_, Eigen::Vector3f ambient);
 public:
-    mm::vec3 diffuse;
-    mm::vec3 specular;
+    Eigen::Vector3f diffuse;
+    Eigen::Vector3f specular;
     float shininess;
-    mm::vec3 emission;
-    mm::vec3 ambient;
+    Eigen::Vector3f emission;
+    Eigen::Vector3f ambient;
 };
 
 
 class Triangle : public Material{
 public:
-    Triangle(mm::vec3 a_, mm::vec3 b_, mm::vec3 c_);
+    Triangle(Eigen::Vector3f a_, Eigen::Vector3f b_, Eigen::Vector3f c_);
     Triangle(float ax, float ay, float az,
             float bx, float by, float bz,
             float cx, float cy, float cz);
     Triangle(vert_norm a_,vert_norm b_, vert_norm c_);
 
 public:
-    mm::vec3 a;
-    mm::vec3 b;
-    mm::vec3 c;
+    Eigen::Vector3f a;
+    Eigen::Vector3f b;
+    Eigen::Vector3f c;
 
     bool normals_defined;
-    mm::vec3 na;
-    mm::vec3 nb;
-    mm::vec3 nc;
+    Eigen::Vector3f na;
+    Eigen::Vector3f nb;
+    Eigen::Vector3f nc;
 
-    mm::mat4 transform;
-    mm::mat4 inv_transform;
+    Eigen::Matrix4f transform;
+    Eigen::Matrix4f inv_transform;
 };
 
 
 class Sphere : public Material{
 public:
-    Sphere(mm::vec3 pos_, float radius_);
+    Sphere(Eigen::Vector3f pos_, float radius_);
     Sphere(float x, float y, float z, float radius_);
 
 public:
-    mm::vec3 pos;
+    Eigen::Vector3f pos;
     float radius;
 
-    mm::mat4 transform;
-    mm::mat4 inv_transform;
+    Eigen::Matrix4f transform;
+    Eigen::Matrix4f inv_transform;
 };
 
 
 class Light{
 public:
-    mm::vec3 pos;
-    mm::vec3 color;
+    Eigen::Vector3f pos;
+    Eigen::Vector3f color;
     bool is_point;
 
     Light();
-    Light(mm::vec3 pos_, mm::vec3 color_, bool is_point);
+    Light(Eigen::Vector3f pos_, Eigen::Vector3f color_, bool is_point);
 
 };
 
 
 class Camera{
 public:
-    Camera(mm::vec3 eye_, mm::vec3 center_, mm::vec3 up_, float fovy);
+    Camera(Eigen::Vector3f eye_, Eigen::Vector3f center_, Eigen::Vector3f up_, float fovy);
     Camera(float ex, float ey, float ez,
         float cx, float cy, float cz,
         float ux, float uy, float uz,
         float fovy);
     Camera();
 public:
-    mm::vec3 eye;
-    mm::vec3 center;
-    mm::vec3 up;
+    Eigen::Vector3f eye;
+    Eigen::Vector3f center;
+    Eigen::Vector3f up;
     float fovy;
 };

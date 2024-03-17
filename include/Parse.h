@@ -4,6 +4,8 @@
 #include "Scene.h"
 #include "Transform.h"
 
+#include <Eigen/Dense>
+
 #include <sstream>
 #include <fstream>
 #include <string>
@@ -20,15 +22,15 @@ private:
 
 public:
     // struct vert_norm{
-    //     mm::vec3 pos;
-    //     mm::vec3 normal;
-    //     vert_norm(mm::vec3 pos_, mm::vec3 normal_)
+    //     Eigen::Vector3f pos;
+    //     Eigen::Vector3f normal;
+    //     vert_norm(Eigen::Vector3f pos_, Eigen::Vector3f normal_)
     //         : pos(pos_), normal(normal_) {}
     // };
 
 private:
     static std::string cur_cmd;
     static uint cur_line;
-    static std::vector<mm::vec3> vertices;
+    static std::vector<Eigen::Vector3f> vertices;
     static std::vector<vert_norm> vertices_norm;
 };

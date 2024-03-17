@@ -24,10 +24,10 @@ Render::Ray Render::gen_ray(int y, int x){
     float beta = tan(fovy/2.0 * M_PI/180.0) * (scene->height / 2.0 - y) / (scene->height / 2.0);
 
     // orthonormal basis vectors
-    mm::vec3 w = mm::normalize(scene->camera.eye - scene->camera.center); // Points away from the look direction
-    mm::vec3 u = mm::normalize(mm::cross(scene->camera.up, w)); // Right vector
-    mm::vec3 v = mm::cross(w, u); // Actual up vector
-    mm::vec3 ray_dir = mm::normalize(alpha * u + beta * v - w);
+    Eigen::Vector3f w = mm::normalize(scene->camera.eye - scene->camera.center); // Points away from the look direction
+    Eigen::Vector3f u = mm::normalize(mm::cross(scene->camera.up, w)); // Right vector
+    Eigen::Vector3f v = mm::cross(w, u); // Actual up vector
+    Eigen::Vector3f ray_dir = mm::normalize(alpha * u + beta * v - w);
 
     ray.origin = scene->camera.eye;
     ray.dir = ray_dir;
@@ -47,7 +47,7 @@ void Render::computeChunk(int start_y, int end_y) {
                 // mm::print_vec(hit.normal);
 
                 //lighting calculation
-                mm::vec3 color(0.0);
+                Eigen::Vector3f color(0.0);
                 calc_color(ray, hit, &color);
                 // std::cout << (hit.mat) << std::endl;
                 // exit(0);
@@ -91,7 +91,7 @@ void Render::compute(){
             //     // mm::print_vec(hit.normal);
 
             //     //lighting calculation
-            //     mm::vec3 color(0.0);
+            //     Eigen::Vector3f color(0.0);
             //     calc_color(ray, hit, &color);
             //     // std::cout << (hit.mat) << std::endl;
             //     // exit(0);
@@ -133,12 +133,12 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         // std::cout << "inv" << std::endl;
         // mm::print_mat(s.inv_transform);
         // std::cout << "I?" << std::endl;
-        // mm::mat4 test = s.inv_transform * s.transform;
+        // Eigen::Matrix4f test = s.inv_transform * s.transform;
         // mm::print_mat(test);
 
-        mm::vec3 p0 = (s.inv_transform * mm::vec4(ray.origin, 1.0)).xyz();
-        mm::vec3 p1 = (s.inv_transform * mm::vec4(ray.dir, 0.0)).xyz();
-        mm::vec3 center = s.pos;
+        Eigen::Vector3f p0 = (s.inv_transform * Eigen::Vector4f(ray.origin, 1.0)).xyz();
+        Eigen::Vector3f p1 = (s.inv_transform * Eigen::Vector4f(ray.dir, 0.0)).xyz();
+        Eigen::Vector3f center = s.pos;
         float r = s.radius;
 
         float a = p1 * p1;
@@ -156,19 +156,19 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 
         if(t0>0 && t1>0){
             if(t0<t1){
-                cur_inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
+                cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).xyz();
                 cur_inter->t = t0;
             }else{
-                cur_inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
+                cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).xyz();
                 cur_inter->t = t1;
             }
         }
         else if(t0>0 && t1<0){
-            cur_inter->pos = (s.transform * mm::vec4((p0+p1*t0), 1.0)).xyz();
+            cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).xyz();
             cur_inter->t = t0;
         }
         else if(t0<0 && t1>0){
-            cur_inter->pos = (s.transform * mm::vec4((p0+p1*t1), 1.0)).xyz();
+            cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).xyz();
             cur_inter->t = t1;
         }
 
@@ -184,20 +184,20 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         }
 
 
-        mm::vec3 n = mm::normalize(inter->pos - center);
-        inter->normal = ((s.inv_transform).T() * mm::vec4(n,0.0)).xyz();
+        Eigen::Vector3f n = mm::normalize(inter->pos - center);
+        inter->normal = ((s.inv_transform).T() * Eigen::Vector4f(n,0.0)).xyz();
     }
 
 
     // for (Triangle t : scene->triangles) {
-    //         mm::vec3 vertexA = (t.transform * mm::vec4(t.a, 1.0)).xyz();
-    //         mm::vec3 vertexB = (t.transform * mm::vec4(t.b, 1.0)).xyz();
-    //         mm::vec3 vertexC = (t.transform * mm::vec4(t.c, 1.0)).xyz();
+    //         Eigen::Vector3f vertexA = (t.transform * Eigen::Vector4f(t.a, 1.0)).xyz();
+    //         Eigen::Vector3f vertexB = (t.transform * Eigen::Vector4f(t.b, 1.0)).xyz();
+    //         Eigen::Vector3f vertexC = (t.transform * Eigen::Vector4f(t.c, 1.0)).xyz();
 
-    //         mm::vec3 edgeAB = vertexB - vertexA;
-    //         mm::vec3 edgeAC = vertexC - vertexA;
+    //         Eigen::Vector3f edgeAB = vertexB - vertexA;
+    //         Eigen::Vector3f edgeAC = vertexC - vertexA;
 
-    //         mm::vec3 h = mm::cross(ray.dir, edgeAC);
+    //         Eigen::Vector3f h = mm::cross(ray.dir, edgeAC);
     //         float determinant = edgeAB * h;
 
     //         if (abs(determinant) < EPSILON) {
@@ -205,14 +205,14 @@ bool Render::trace(const Ray& ray, Intersection* inter){
     //         }
 
     //         float f = 1.0 / determinant;
-    //         mm::vec3 rayToVertexA = ray.origin - vertexA;
+    //         Eigen::Vector3f rayToVertexA = ray.origin - vertexA;
     //         float u = f * rayToVertexA * h;
 
     //         if (u < 0.0 || u > 1.0) {
     //             continue;
     //         }
 
-    //         mm::vec3 q = mm::cross(rayToVertexA, edgeAB);
+    //         Eigen::Vector3f q = mm::cross(rayToVertexA, edgeAB);
     //         float v = f * ray.dir * q;
 
     //         if (v < 0.0 || u + v > 1.0) {
@@ -240,16 +240,16 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 }
 
 
-void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* color){
+void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f* color){
     //inter: pos, normal, t
     //ray: origin, dir
 
     for(Light light : scene->lights){
-        mm::vec3 eye_dir_form_point = mm::normalize(ray.origin - inter.pos);
+        Eigen::Vector3f eye_dir_form_point = mm::normalize(ray.origin - inter.pos);
 
         if(!light.is_point){ //directional
-            mm::vec3 light_dir = mm::normalize(light.pos);
-            mm::vec3 half_vec = mm::normalize (light_dir + eye_dir_form_point);
+            Eigen::Vector3f light_dir = mm::normalize(light.pos);
+            Eigen::Vector3f half_vec = mm::normalize (light_dir + eye_dir_form_point);
             lambert_phong(light,
                           light_dir,
                           inter.normal,
@@ -259,8 +259,8 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
                           inter.shininess,
                           color);
         }else if(light.is_point){//point
-            mm::vec3 light_dir = mm::normalize(light.pos - inter.pos);
-            mm::vec3 half_vec = mm::normalize(light_dir + eye_dir_form_point);
+            Eigen::Vector3f light_dir = mm::normalize(light.pos - inter.pos);
+            Eigen::Vector3f half_vec = mm::normalize(light_dir + eye_dir_form_point);
             lambert_phong(light,
                           light_dir,
                           inter.normal,
@@ -277,22 +277,22 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, mm::vec3* col
 }
 
 void Render::lambert_phong(const Light& light,
-                   const mm::vec3& dir,
-                   const mm::vec3& normal,
-                   const mm::vec3& half_vec,
-                   const mm::vec3& diffuse,
-                   const mm::vec3& specular,
+                   const Eigen::Vector3f& dir,
+                   const Eigen::Vector3f& normal,
+                   const Eigen::Vector3f& half_vec,
+                   const Eigen::Vector3f& diffuse,
+                   const Eigen::Vector3f& specular,
                    const float& shininess,
-                   mm::vec3* pix_color) {
+                   Eigen::Vector3f* pix_color) {
     //
     float nDotL = normal * dir;
-    mm::vec3 lambert =  diffuse* std::max(nDotL, 0.0f) ;
+    Eigen::Vector3f lambert =  diffuse* std::max(nDotL, 0.0f) ;
     float nDotH = normal * half_vec;
-    mm::vec3 phong = specular * pow(std::max(nDotH, 0.0f), shininess);
+    Eigen::Vector3f phong = specular * pow(std::max(nDotH, 0.0f), shininess);
 
-    mm::vec3 lp = (lambert + phong);
+    Eigen::Vector3f lp = (lambert + phong);
 
-    *pix_color = *pix_color + mm::vec3(lp.x*light.color.x,
+    *pix_color = *pix_color + Eigen::Vector3f(lp.x*light.color.x,
                                        lp.y*light.color.y,
                                        lp.z*light.color.z);
 
