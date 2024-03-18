@@ -12,17 +12,16 @@ struct vert_norm{
 class Material{
 public:
     Material();
-    Material(Eigen::Vector3f diffuse_,  Eigen::Vector3f specular_, float shininess_, Eigen::Vector3f emission_, Eigen::Vector3f ambient);
+    Material(Eigen::Vector3f diffuse_,  Eigen::Vector3f specular_, float shininess_, Eigen::Vector3f emission_);
 public:
     Eigen::Vector3f diffuse;
     Eigen::Vector3f specular;
     float shininess;
     Eigen::Vector3f emission;
-    Eigen::Vector3f ambient;
 };
 
 
-class Triangle : public Material{
+class Triangle{
 public:
     Triangle(Eigen::Vector3f a_, Eigen::Vector3f b_, Eigen::Vector3f c_);
     Triangle(float ax, float ay, float az,
@@ -42,10 +41,12 @@ public:
 
     Eigen::Matrix4f transform;
     Eigen::Matrix4f inv_transform;
+
+    Material mat;
 };
 
 
-class Sphere : public Material{
+class Sphere{
 public:
     Sphere(Eigen::Vector3f pos_, float radius_);
     Sphere(float x, float y, float z, float radius_);
@@ -56,6 +57,7 @@ public:
 
     Eigen::Matrix4f transform;
     Eigen::Matrix4f inv_transform;
+    Material mat;
 };
 
 

@@ -1,12 +1,11 @@
 #include "../include/Scene.h"
 
 Scene::Scene()
-    : width(0), height(0), maxdepth(1){
-}
+    : width(0), height(0), maxdepth(1),
+    ambient(Eigen::Vector3f::Zero()),
+    attenuation(Eigen::Vector3f::Zero()) {}
 
-Scene::~Scene(){
-
-}
+Scene::~Scene() {}
 
 
 void Scene::add_sphere(Sphere& s){

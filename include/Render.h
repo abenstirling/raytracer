@@ -35,18 +35,12 @@ private: //vars
         Eigen::Vector3f pos;
         Eigen::Vector3f normal;
         float t;
+        Material mat;
 
-        Eigen::Vector3f diffuse;
-        Eigen::Vector3f specular;
-        float shininess;
-        Eigen::Vector3f emission;
-        Eigen::Vector3f ambient;
+        Intersection() : pos(Eigen::Vector3f(0.0,0.0,0.0)), normal(Eigen::Vector3f(0.0,0.0,0.0)), t(INFINITY), mat(Material()) {}
 
-        Intersection() : pos(Eigen::Vector3f(0.0,0.0,0.0)), normal(Eigen::Vector3f(0.0,0.0,0.0)), t(INFINITY),
-            diffuse(Eigen::Vector3f(0.0,0.0,0.0)), specular(Eigen::Vector3f(0.0,0.0,0.0)), shininess(0.0f), emission(Eigen::Vector3f(0.0,0.0,0.0)), ambient(Eigen::Vector3f(0.0,0.0,0.0)){}
         Intersection(Eigen::Vector3f pos_, Eigen::Vector3f normal_)
-            : pos(pos_), normal(normal_), t(INFINITY),
-            diffuse(Eigen::Vector3f(0.0,0.0,0.0)), specular(Eigen::Vector3f(0.0,0.0,0.0)), shininess(0.0f), emission(Eigen::Vector3f(0.0,0.0,0.0)), ambient(Eigen::Vector3f(0.0,0.0,0.0)) {}
+            : pos(pos_), normal(normal_), t(INFINITY), mat(Material()) {}
     };
 
 public: //fn
@@ -56,14 +50,10 @@ public: //fn
 
 private: //fn
     bool trace(const Ray& ray, Intersection* inter);
-    void calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f* color);
-    void lambert_phong(const Light& light,
+    void calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f& color);
+    Eigen::Vector3f lambert_phong(const Light& light,
+                       const Intersection& intersect,
                        const Eigen::Vector3f& dir,
-                       const Eigen::Vector3f& normal,
-                       const Eigen::Vector3f& half_vec,
-                       const Eigen::Vector3f& diffuse,
-                       const Eigen::Vector3f& specular,
-                       const float& shininess,
-                       Eigen::Vector3f* color);
+                       const Eigen::Vector3f& half_vec);
     void computeChunk(int start_y, int end_y);
 };

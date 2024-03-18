@@ -49,7 +49,7 @@ void Render::computeChunk(int start_y, int end_y) {
                 //lighting calculation
                 Eigen::Vector3f color = Eigen::Vector3f::Zero();
 
-                calc_color(ray, hit, &color);
+                calc_color(ray, hit, color);
                 // std::cout << (hit.mat) << std::endl;
                 // exit(0);
 
@@ -136,7 +136,7 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         Eigen::Vector3f p0 = temp2.head<3>();
 
         Eigen::Vector4f temp3;
-       temp3 << ray.dir, 0.0;
+        temp3 << ray.dir, 0.0;
         temp2 = (s.inv_transform * temp3);
         Eigen::Vector3f p1 = temp2.head<3>();
 
@@ -148,6 +148,7 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         float c = (p0 - center).dot(p0 - center) - r*r;
 
         float disc = b*b - 4.0 * a * c;
+
         if(disc>=0){
             float t = (-b - sqrt(disc)) / (2*a);
             if(t>=0){
@@ -159,53 +160,10 @@ bool Render::trace(const Ray& ray, Intersection* inter){
             }
         }
 
-
-
-
-
-        // if(t0>0 && t1>0){
-        //     if(t0<t1){
-        //         // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).head<3>();
-        //         Eigen::Vector3f temp = p0+p1*t0;
-        //         Eigen::Vector4f temp2;
-        //         temp2 << temp, 1.0;
-        //         cur_inter->pos = (s.transform * temp2).head<3>();
-        //         cur_inter->t = t0;
-        //     }else{
-        //         // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).head<3>();
-        //         Eigen::Vector3f temp = p0+p1*t1;
-        //         Eigen::Vector4f temp2;
-        //         temp2 << temp, 1.0;
-        //         cur_inter->pos = (s.transform * temp2).head<3>();
-        //         cur_inter->t = t1;
-        //     }
-        // }
-        // else if(t0>0 && t1<0){
-        //     // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).head<3>();
-        //     Eigen::Vector3f temp = p0+p1*t0;
-        //     Eigen::Vector4f temp2;
-        //     temp2 << temp, 1.0;
-        //     cur_inter->pos = (s.transform * temp2).head<3>();
-        //     cur_inter->t = t0;
-        // }
-        // else if(t0<0 && t1>0){
-        //     // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).head<3>();
-        //     Eigen::Vector3f temp = p0+p1*t1;
-        //     Eigen::Vector4f temp2;
-        //     temp2 << temp, 1.0;
-        //     cur_inter->pos = (s.transform * temp2).head<3>();
-        //     cur_inter->t = t1;
-        // }
-
-
         if(cur_inter->t < inter->t){
             inter->pos = cur_inter->pos;
             inter->t = cur_inter->t;
-            inter->diffuse = s.diffuse;
-            inter->specular = s.specular;
-            inter->shininess = s.shininess;
-            inter->emission = s.emission;
-            inter->ambient = s.ambient;
+            inter->mat = s.mat;
 
             Eigen::Vector3f n = (inter->pos - center).normalized();
             Eigen::Vector4f n_hom;
@@ -213,55 +171,57 @@ bool Render::trace(const Ray& ray, Intersection* inter){
             Eigen::Vector4f rslt = ((s.inv_transform).transpose()) * n_hom;
             inter->normal = (rslt.head<3>()).normalized();
         }
-
-
-
     }
 
 
-    // for (Triangle t : scene->triangles) {
-    //         Eigen::Vector3f vertexA = (t.transform * Eigen::Vector4f(t.a, 1.0)).xyz();
-    //         Eigen::Vector3f vertexB = (t.transform * Eigen::Vector4f(t.b, 1.0)).xyz();
-    //         Eigen::Vector3f vertexC = (t.transform * Eigen::Vector4f(t.c, 1.0)).xyz();
+    for (Triangle t : scene->triangles) {
+        Eigen::Vector4f tempVector = t.transform * Eigen::Vector4f(t.a[0], t.a[1], t.a[2], 1.0);
+        Eigen::Vector3f vertexA(tempVector[0], tempVector[1], tempVector[2]);
 
-    //         Eigen::Vector3f edgeAB = vertexB - vertexA;
-    //         Eigen::Vector3f edgeAC = vertexC - vertexA;
+        Eigen::Vector4f tempVectorB = t.transform * Eigen::Vector4f(t.b[0], t.b[1], t.b[2], 1.0);
+        Eigen::Vector3f vertexB(tempVectorB[0], tempVectorB[1], tempVectorB[2]);
 
-    //         Eigen::Vector3f h = mm::cross(ray.dir, edgeAC);
-    //         float determinant = edgeAB * h;
+        Eigen::Vector4f tempVectorC = t.transform * Eigen::Vector4f(t.c[0], t.c[1], t.c[2], 1.0);
+        Eigen::Vector3f vertexC(tempVectorC[0], tempVectorC[1], tempVectorC[2]);
 
-    //         if (abs(determinant) < EPSILON) {
-    //             continue;
-    //         }
 
-    //         float f = 1.0 / determinant;
-    //         Eigen::Vector3f rayToVertexA = ray.origin - vertexA;
-    //         float u = f * rayToVertexA * h;
 
-    //         if (u < 0.0 || u > 1.0) {
-    //             continue;
-    //         }
+            Eigen::Vector3f edgeAB = vertexB - vertexA;
+            Eigen::Vector3f edgeAC = vertexC - vertexA;
 
-    //         Eigen::Vector3f q = mm::cross(rayToVertexA, edgeAB);
-    //         float v = f * ray.dir * q;
+            Eigen::Vector3f h = ray.dir.cross(edgeAC);
+            //float determinant = edgeAB.cwiseProduct(h);
+            // think this is right?? need to confirm, was edgeAB * h before
+            float determinant = edgeAB.dot(h);
 
-    //         if (v < 0.0 || u + v > 1.0) {
-    //             continue;
-    //         }
+            if (abs(determinant) < EPSILON) {
+                continue;
+            }
 
-    //         float rayIntersectionDistance = f * edgeAC * q;
+            float f = 1.0 / determinant;
+            Eigen::Vector3f rayToVertexA = ray.origin - vertexA;
+            float u = f * rayToVertexA.dot(h);
 
-    //         if (rayIntersectionDistance > EPSILON && rayIntersectionDistance < inter->t) {
-    //             inter->t = rayIntersectionDistance;
-    //             inter->pos = ray.origin + ray.dir * rayIntersectionDistance;
-    //             inter->normal = mm::normalize(mm::cross(edgeAB, edgeAC));
-    //             inter->diffuse = t.diffuse;
-    //             inter->specular = t.specular;
-    //             inter->emission = t.emission;
-    //             inter->shininess = t.shininess;
-    //             inter->ambient = t.ambient;
-    //         }
-    // }
+            if (u < 0.0 || u > 1.0) {
+                continue;
+            }
+
+            Eigen::Vector3f q = rayToVertexA.cross(edgeAB); // Use cross product
+            float v = f * ray.dir.dot(q);
+
+            if (v < 0.0 || u + v > 1.0) {
+                continue;
+            }
+
+            float rayIntersectionDistance = f * edgeAC.dot(q);
+
+            if (rayIntersectionDistance > EPSILON && rayIntersectionDistance < inter->t) {
+                inter->t = rayIntersectionDistance;
+                inter->pos = ray.origin + ray.dir * rayIntersectionDistance;
+                inter->normal = (edgeAB.cross(edgeAC)).normalized();
+                inter->mat = t.mat;
+            }
+    }
 
     delete(cur_inter);
     if(inter->t == INFINITY)
@@ -270,64 +230,49 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 }
 
 
-void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f* color){
+void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f& color){
     //inter: pos, normal, t
     //ray: origin, dir
+    color += scene->ambient + inter.mat.emission;
 
     for(Light light : scene->lights){
         Eigen::Vector3f eye_dir = (ray.origin - inter.pos).normalized();
-        // Eigen::Vector3f eye_dir_form_point = (ray.origin - inter.pos);
-
 
         if(!light.is_point){ //directional
             Eigen::Vector3f light_dir = (light.pos).normalized();
             Eigen::Vector3f half_vec = (light_dir + eye_dir).normalized();
-            lambert_phong(light,
-                          light_dir,
-                          inter.normal,
-                          half_vec,
-                          inter.diffuse,
-                          inter.specular,
-                          inter.shininess,
-                          color);
+            color += lambert_phong(light, inter, light_dir, half_vec);
 
         }else if(light.is_point){//point
             Eigen::Vector3f light_dir = (light.pos - inter.pos).normalized();
             Eigen::Vector3f half_vec = (light_dir + eye_dir).normalized();
-            lambert_phong(light,
-                          light_dir,
-                          inter.normal,
-                          half_vec,
-                          inter.diffuse,
-                          inter.specular,
-                          inter.shininess,
-                          color);
+
+            float dist = (light.pos - inter.pos).norm();
+            float c0 = scene->attenuation[0];
+            float c1 = scene->attenuation[1];
+            float c2 = scene->attenuation[2];
+            Eigen::Vector3f I = light.color /  (c0 +c1*dist + c2*dist*dist);
+
+            color += I.cwiseProduct(lambert_phong(light, inter, light_dir, half_vec)) ;
         }
-
     }
-
-    *color = *color + inter.ambient + inter.emission;
 }
 
 
 
-void Render::lambert_phong(const Light& light,
+
+
+Eigen::Vector3f Render::lambert_phong(const Light& light,
+                   const Intersection& intersect,
                    const Eigen::Vector3f& dir,
-                   const Eigen::Vector3f& normal,
-                   const Eigen::Vector3f& half_vec,
-                   const Eigen::Vector3f& diffuse,
-                   const Eigen::Vector3f& specular,
-                   const float& shininess,
-                   Eigen::Vector3f* pix_color) {
+                   const Eigen::Vector3f& half_vec) {
     //
-    Eigen::Vector3f n = normal.normalized();
+    Eigen::Vector3f n = intersect.normal.normalized();
     float nDotL = n.dot(dir);
-    Eigen::Vector3f lambert =  diffuse.cwiseProduct(light.color) *  std::max(nDotL, 0.0f) ;
+    Eigen::Vector3f lambert =  intersect.mat.diffuse *  std::max(nDotL, 0.0f);
+
     float nDotH = n.dot(half_vec);
-    Eigen::Vector3f phong = specular.cwiseProduct(light.color) * pow(std::max(nDotH, 0.0f), shininess);
+    Eigen::Vector3f phong = intersect.mat.specular * pow(std::max(nDotH, 0.0f), intersect.mat.shininess);
 
-    Eigen::Vector3f lp = (lambert + phong);
-
-    *pix_color = *pix_color + lp;
-
+    return lambert + phong;
 }

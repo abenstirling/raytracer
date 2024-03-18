@@ -24,6 +24,9 @@ public: // public vars
     std::vector<Light> lights;
     Camera camera;
 
+    Eigen::Vector3f ambient;
+    Eigen::Vector3f attenuation;
+
 private: //private vars
 
 public: //public fn

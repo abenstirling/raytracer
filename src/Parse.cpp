@@ -28,17 +28,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
     t_stack.push(Eigen::Matrix4f::Identity());// t_stack.push(Eigen::Matrix4f(1.0));
     inv_t_stack.push(Eigen::Matrix4f::Identity());
 
-    Eigen::Vector3f diffuse;
-    diffuse.setZero();
-    Eigen::Vector3f specular;
-    specular.setZero();
-    Eigen::Vector3f emission;
-    emission.setZero();
-    float shininess = 0.0;
-    Eigen::Vector3f ambient;
-    ambient.setZero();
-
-
+    Material mat;
 
     cur_line = 0;
     while(std::getline(file, line)){
@@ -89,11 +79,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             t.transform = t_stack.top();
             t.inv_transform = inv_t_stack.top();
 
-            t.diffuse = diffuse;
-            t.specular = specular;
-            t.shininess = shininess;
-            t.emission = emission;
-            t.ambient = ambient;
+            t.mat = mat;
             scene->add_triangle(t);
         }
         else if(cmd == "trinormal"){
@@ -106,11 +92,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             t.transform = t_stack.top();
             t.inv_transform = inv_t_stack.top();
 
-            t.diffuse = diffuse;
-            t.specular = specular;
-            t.shininess = shininess;
-            t.emission = emission;
-            t.ambient = ambient;
+            t.mat = mat;
             scene->add_triangle(t);
 
 
@@ -123,11 +105,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             s.transform = t_stack.top();
             s.inv_transform = inv_t_stack.top();
 
-            s.diffuse = diffuse;
-            s.specular = specular;
-            s.shininess = shininess;
-            s.emission = emission;
-            s.ambient = ambient;
+            s.mat = mat;
 
             // mm::print_vec(diffuse);
             scene->add_sphere(s);
@@ -268,34 +246,38 @@ void Parse::parse_file(Scene* scene, const char* file_name){
             float b = vals[5];
 
             Light l(Eigen::Vector3f(x,y,z), Eigen::Vector3f(r,g,b), true);
+
+
             scene->add_light(l);
         }
         else if(cmd == "attenuation"){
-            //attenuation const linear quadratic
+            // attenuation const linear quadratic
+            read_vals(ss,3,vals);
+            scene->attenuation = Eigen::Vector3f(vals[0],vals[1],vals[2]);
 
         }
         else if(cmd == "ambient"){
             //ambient r g b
             read_vals(ss,3,vals);
-            ambient = Eigen::Vector3f(vals[0], vals[1], vals[2]);
+            scene->ambient = Eigen::Vector3f(vals[0], vals[1], vals[2]);
         }
         //materials
         else if(cmd == "diffuse"){
             read_vals(ss,3,vals);
-            diffuse = Eigen::Vector3f(vals[0], vals[1], vals[2]);
+            mat.diffuse = Eigen::Vector3f(vals[0], vals[1], vals[2]);
         }
         else if(cmd == "specular"){
             read_vals(ss,3,vals);
-            specular = Eigen::Vector3f(vals[0], vals[1], vals[2]);
+            mat.specular = Eigen::Vector3f(vals[0], vals[1], vals[2]);
 
         }
         else if(cmd == "emission"){
             read_vals(ss,3,vals);
-            emission = Eigen::Vector3f(vals[0], vals[1], vals[2]);
+            mat.emission = Eigen::Vector3f(vals[0], vals[1], vals[2]);
         }
         else if(cmd == "shininess"){
             read_vals(ss,1,vals);
-            shininess = vals[0];
+            mat.shininess = vals[0];
         }
 
         // else if(cmd == ""){
