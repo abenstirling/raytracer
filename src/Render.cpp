@@ -125,7 +125,7 @@ bool Render::trace(const Ray& ray, Intersection* inter){
     //float min_t = std::numeric_limits<float>::infinity();
 
     Intersection* cur_inter = new Intersection;
-    inter->t = std::numeric_limits<float>::infinity();
+    inter->t = INFINITY;
 
 
     for(Sphere s : scene->spheres){
@@ -135,9 +135,11 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         Eigen::Vector4f temp2 = (s.inv_transform * temp);
         Eigen::Vector3f p0 = temp2.head<3>();
 
-        temp << ray.dir, 0.0;
-        temp2 = (s.inv_transform * temp);
+        Eigen::Vector4f temp3;
+       temp3 << ray.dir, 0.0;
+        temp2 = (s.inv_transform * temp3);
         Eigen::Vector3f p1 = temp2.head<3>();
+
         Eigen::Vector3f center = s.pos;
         float r = s.radius;
 
@@ -146,47 +148,54 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         float c = (p0 - center).dot(p0 - center) - r*r;
 
         float disc = b*b - 4.0 * a * c;
-        if(disc<0)//no intersection
-            continue;
-
-        float t0 = (-b + sqrt(disc)) / (2*a);
-        float t1 = (-b - sqrt(disc)) / (2*a);
-
-
-
-        if(t0>0 && t1>0){
-            if(t0<t1){
-                // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).head<3>();
-                Eigen::Vector3f temp = p0+p1*t0;
+        if(disc>=0){
+            float t = (-b - sqrt(disc)) / (2*a);
+            if(t>=0){
+                Eigen::Vector3f temp = p0+p1*t;
                 Eigen::Vector4f temp2;
                 temp2 << temp, 1.0;
                 cur_inter->pos = (s.transform * temp2).head<3>();
-                cur_inter->t = t0;
-            }else{
-                // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).head<3>();
-                Eigen::Vector3f temp = p0+p1*t1;
-                Eigen::Vector4f temp2;
-                temp2 << temp, 1.0;
-                cur_inter->pos = (s.transform * temp2).head<3>();
-                cur_inter->t = t1;
+                cur_inter->t = t;
             }
         }
-        else if(t0>0 && t1<0){
-            // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).head<3>();
-            Eigen::Vector3f temp = p0+p1*t0;
-            Eigen::Vector4f temp2;
-            temp2 << temp, 1.0;
-            cur_inter->pos = (s.transform * temp2).head<3>();
-            cur_inter->t = t0;
-        }
-        else if(t0<0 && t1>0){
-            // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).head<3>();
-            Eigen::Vector3f temp = p0+p1*t1;
-            Eigen::Vector4f temp2;
-            temp2 << temp, 1.0;
-            cur_inter->pos = (s.transform * temp2).head<3>();
-            cur_inter->t = t1;
-        }
+
+
+
+
+
+        // if(t0>0 && t1>0){
+        //     if(t0<t1){
+        //         // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).head<3>();
+        //         Eigen::Vector3f temp = p0+p1*t0;
+        //         Eigen::Vector4f temp2;
+        //         temp2 << temp, 1.0;
+        //         cur_inter->pos = (s.transform * temp2).head<3>();
+        //         cur_inter->t = t0;
+        //     }else{
+        //         // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).head<3>();
+        //         Eigen::Vector3f temp = p0+p1*t1;
+        //         Eigen::Vector4f temp2;
+        //         temp2 << temp, 1.0;
+        //         cur_inter->pos = (s.transform * temp2).head<3>();
+        //         cur_inter->t = t1;
+        //     }
+        // }
+        // else if(t0>0 && t1<0){
+        //     // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t0), 1.0)).head<3>();
+        //     Eigen::Vector3f temp = p0+p1*t0;
+        //     Eigen::Vector4f temp2;
+        //     temp2 << temp, 1.0;
+        //     cur_inter->pos = (s.transform * temp2).head<3>();
+        //     cur_inter->t = t0;
+        // }
+        // else if(t0<0 && t1>0){
+        //     // cur_inter->pos = (s.transform * Eigen::Vector4f((p0+p1*t1), 1.0)).head<3>();
+        //     Eigen::Vector3f temp = p0+p1*t1;
+        //     Eigen::Vector4f temp2;
+        //     temp2 << temp, 1.0;
+        //     cur_inter->pos = (s.transform * temp2).head<3>();
+        //     cur_inter->t = t1;
+        // }
 
 
         if(cur_inter->t < inter->t){
@@ -197,14 +206,16 @@ bool Render::trace(const Ray& ray, Intersection* inter){
             inter->shininess = s.shininess;
             inter->emission = s.emission;
             inter->ambient = s.ambient;
+
+            Eigen::Vector3f n = (inter->pos - center).normalized();
+            Eigen::Vector4f n_hom;
+            n_hom << n, 0.0;
+            Eigen::Vector4f rslt = ((s.inv_transform).transpose()) * n_hom;
+            inter->normal = (rslt.head<3>()).normalized();
         }
 
 
-        Eigen::Vector3f n = (inter->pos - s.pos).normalized();
-        Eigen::Vector4f n_hom;
-        n_hom << n, 0.0;
-        Eigen::Vector4f rslt = ((s.inv_transform).transpose()) * n_hom;
-        inter->normal = rslt.head<3>();
+
     }
 
 
@@ -309,9 +320,10 @@ void Render::lambert_phong(const Light& light,
                    const float& shininess,
                    Eigen::Vector3f* pix_color) {
     //
-    float nDotL = normal.dot(dir);
+    Eigen::Vector3f n = normal.normalized();
+    float nDotL = n.dot(dir);
     Eigen::Vector3f lambert =  diffuse.cwiseProduct(light.color) *  std::max(nDotL, 0.0f) ;
-    float nDotH = normal.dot(half_vec);
+    float nDotH = n.dot(half_vec);
     Eigen::Vector3f phong = specular.cwiseProduct(light.color) * pow(std::max(nDotH, 0.0f), shininess);
 
     Eigen::Vector3f lp = (lambert + phong);
