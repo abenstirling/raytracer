@@ -1,6 +1,7 @@
 #include "../include/Render.h"
 #include <cmath>
 #include <cstdint>
+#include <iostream>
 #include <limits>
 
 Render::Render(Scene* scene_)
@@ -44,13 +45,11 @@ void Render::computeChunk(int start_y, int end_y) {
 
             Intersection hit;
             if(trace(ray, &hit)){
-                // mm::print_vec(hit.normal);
 
                 //lighting calculation
                 Eigen::Vector3f color = Eigen::Vector3f::Zero();
 
                 calc_color(ray, hit, color);
-                // std::cout << (hit.mat) << std::endl;
                 // exit(0);
 
                 int pos = (y*scene->width + x)*3;
@@ -66,47 +65,45 @@ void Render::computeChunk(int start_y, int end_y) {
 }
 
 void Render::compute(){
-    const int num_threads = std::thread::hardware_concurrency(); // Get the number of hardware threads
-    const int chunk_size = std::ceil(scene->height / static_cast<float>(num_threads));
+    // const int num_threads = std::thread::hardware_concurrency(); // Get the number of hardware threads
+    // const int chunk_size = std::ceil(scene->height / static_cast<float>(num_threads));
 
-    std::vector<std::thread> threads;
-    for(int i = 0; i < num_threads; i++) {
-        int start_y = i * chunk_size;
-        int end_y = std::min((i + 1) * chunk_size, scene->height);
-        threads.emplace_back(&Render::computeChunk, this, start_y, end_y);
-    }
-
-    for(auto& thread : threads) {
-        thread.join();
-    }
-
-    // for(int y=0; y<scene->height; y++){
-    //     std::cout << std::setprecision(2) << std::fixed;
-    //     std::cout << (float)y/scene->height << std::endl;
-    //     for(int x=0; x<scene->width; x++){
-
-            // Ray ray = gen_ray(y, x);
-
-            // Intersection hit;
-            // if(trace(ray, &hit)){
-            //     // mm::print_vec(hit.normal);
-
-            //     //lighting calculation
-            //     Eigen::Vector3f color(0.0);
-            //     calc_color(ray, hit, &color);
-            //     // std::cout << (hit.mat) << std::endl;
-            //     // exit(0);
-
-            //     int pos = (y*scene->width + x)*3;
-            //     data[pos +0] = static_cast<uint8_t>(std::min(int(color.x * 255.0f), 255));
-            //     data[pos +1] = static_cast<uint8_t>(std::min(int(color.y * 255.0f), 255));
-            //     data[pos +2] = static_cast<uint8_t>(std::min(int(color.z * 255.0f), 255));
-            //     // data[pos +0] = static_cast<uint8_t>(0.0 * 255.0);
-            //     // data[pos +1] = static_cast<uint8_t>(0.6 * 255.0);
-            //     // data[pos +2] = static_cast<uint8_t>(0.3 * 255.0);
-            // }
-    //     }
+    // std::vector<std::thread> threads;
+    // for(int i = 0; i < num_threads; i++) {
+    //     int start_y = i * chunk_size;
+    //     int end_y = std::min((i + 1) * chunk_size, scene->height);
+    //     threads.emplace_back(&Render::computeChunk, this, start_y, end_y);
     // }
+
+    // for(auto& thread : threads) {
+    //     thread.join();
+    // }
+
+    for(int y=0; y<scene->height; y++){
+        std::cout << std::setprecision(2) << std::fixed;
+        std::cout << (float)y/scene->height << std::endl;
+        for(int x=0; x<scene->width; x++){
+
+            Ray ray = gen_ray(y, x);
+
+            Intersection hit;
+            if(trace(ray, &hit)){
+                // mm::print_vec(hit.normal);
+
+                //lighting calculation
+                Eigen::Vector3f color = Eigen::Vector3f::Zero();
+                calc_color(ray, hit, color);
+
+                int pos = (y*scene->width + x)*3;
+                data[pos +0] = static_cast<uint8_t>(std::min(int(color[0] * 255.0f), 255));
+                data[pos +1] = static_cast<uint8_t>(std::min(int(color[1] * 255.0f), 255));
+                data[pos +2] = static_cast<uint8_t>(std::min(int(color[2] * 255.0f), 255));
+                // data[pos +0] = static_cast<uint8_t>(0.0 * 255.0);
+                // data[pos +1] = static_cast<uint8_t>(0.6 * 255.0);
+                // data[pos +2] = static_cast<uint8_t>(0.3 * 255.0);
+            }
+        }
+    }
 
 }
 
@@ -148,7 +145,7 @@ bool Render::trace(const Ray& ray, Intersection* inter){
         float c = (p0 - center).dot(p0 - center) - r*r;
 
         float disc = b*b - 4.0 * a * c;
-
+        Eigen::Vector3f local_pos;
         if(disc>=0){
             float t = (-b - sqrt(disc)) / (2*a);
             if(t>=0){
@@ -157,6 +154,7 @@ bool Render::trace(const Ray& ray, Intersection* inter){
                 temp2 << temp, 1.0;
                 cur_inter->pos = (s.transform * temp2).head<3>();
                 cur_inter->t = t;
+                local_pos = temp;
             }
         }
 
@@ -165,7 +163,9 @@ bool Render::trace(const Ray& ray, Intersection* inter){
             inter->t = cur_inter->t;
             inter->mat = s.mat;
 
-            Eigen::Vector3f n = (inter->pos - center).normalized();
+            // Eigen::Vector3f n = (inter.pos - center).normalized();
+
+            Eigen::Vector3f n = (local_pos - center).normalized();
             Eigen::Vector4f n_hom;
             n_hom << n, 0.0;
             Eigen::Vector4f rslt = ((s.inv_transform).transpose()) * n_hom;
@@ -231,9 +231,10 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 
 
 void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f& color){
-    //inter: pos, normal, t
-    //ray: origin, dir
-    color += scene->ambient + inter.mat.emission;
+
+    // color += Eigen::Vector3f(0.5,0.5,0.5) + inter.mat.emission;
+    // return;
+    color += inter.mat.ambient; // + inter.mat.emission;
 
     for(Light light : scene->lights){
         Eigen::Vector3f eye_dir = (ray.origin - inter.pos).normalized();
@@ -241,7 +242,7 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector
         if(!light.is_point){ //directional
             Eigen::Vector3f light_dir = (light.pos).normalized();
             Eigen::Vector3f half_vec = (light_dir + eye_dir).normalized();
-            color += lambert_phong(light, inter, light_dir, half_vec);
+            color += light.color.cwiseProduct(lambert_phong(light, inter, light_dir, half_vec));
 
         }else if(light.is_point){//point
             Eigen::Vector3f light_dir = (light.pos - inter.pos).normalized();
@@ -251,14 +252,15 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector
             float c0 = scene->attenuation[0];
             float c1 = scene->attenuation[1];
             float c2 = scene->attenuation[2];
-            Eigen::Vector3f I = light.color /  (c0 +c1*dist + c2*dist*dist);
+            if(scene->attenuation.norm() == 0.0){
+                color += light.color.cwiseProduct(lambert_phong(light, inter, light_dir, half_vec));
+            }else{
+                color += (light.color /  (c0 +c1*dist + c2*dist*dist)).cwiseProduct(lambert_phong(light, inter, light_dir, half_vec));
+            }
 
-            color += I.cwiseProduct(lambert_phong(light, inter, light_dir, half_vec)) ;
         }
     }
 }
-
-
 
 
 

@@ -12,12 +12,13 @@ struct vert_norm{
 class Material{
 public:
     Material();
-    Material(Eigen::Vector3f diffuse_,  Eigen::Vector3f specular_, float shininess_, Eigen::Vector3f emission_);
+    Material(Eigen::Vector3f diffuse_,  Eigen::Vector3f specular_, float shininess_, Eigen::Vector3f emission_, Eigen::Vector3f ambient_);
 public:
     Eigen::Vector3f diffuse;
     Eigen::Vector3f specular;
     float shininess;
     Eigen::Vector3f emission;
+    Eigen::Vector3f ambient;
 };
 
 

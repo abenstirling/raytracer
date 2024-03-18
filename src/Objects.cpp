@@ -5,12 +5,14 @@ Material::Material()
     : diffuse(Eigen::Vector3f::Zero()),
     specular(Eigen::Vector3f::Zero()),
     shininess(0.0),
-    emission(Eigen::Vector3f::Zero()) {}
-Material::Material(Eigen::Vector3f diffuse_,  Eigen::Vector3f specular_, float shininess_, Eigen::Vector3f emission_)
+    emission(Eigen::Vector3f::Zero()),
+    ambient(Eigen::Vector3f::Zero()) {}
+Material::Material(Eigen::Vector3f diffuse_,  Eigen::Vector3f specular_, float shininess_, Eigen::Vector3f emission_, Eigen::Vector3f ambient_)
     : diffuse(diffuse_),
     specular(specular_),
     shininess(shininess_),
-    emission(emission_) {}
+    emission(emission_),
+    ambient(ambient_) {}
 
 Triangle::Triangle(float ax, float ay, float az,
         float bx, float by, float bz,

@@ -259,7 +259,7 @@ void Parse::parse_file(Scene* scene, const char* file_name){
         else if(cmd == "ambient"){
             //ambient r g b
             read_vals(ss,3,vals);
-            scene->ambient = Eigen::Vector3f(vals[0], vals[1], vals[2]);
+            mat.ambient = Eigen::Vector3f(vals[0], vals[1], vals[2]);
         }
         //materials
         else if(cmd == "diffuse"){
