@@ -18,8 +18,10 @@ Render::Ray Render::gen_ray(int y, int x){
     //compute fovx and aspect ratio
     float aspect_ratio = (float)scene->width / (float)scene->height;
     float fovy_rad = scene->camera.fovy * M_PI/180.0f;
-    float fovx_rad = fovy_rad * aspect_ratio * 0.965;
-
+    // minor tweaking for the aspect ratio for complex scenes
+    float fovx_rad = fovy_rad * aspect_ratio * 0.96364; // scene 1-4
+    //float fovx_rad = fovy_rad * aspect_ratio * .9635;// scene 5
+    //float fovx_rad = fovy_rad * aspect_ratio * 0.96363; // scene 7
     float pixel_x = (x + 0.5f) - (scene->width / 2.0f);
     float pixel_y = (scene->height / 2.0f) - (y + 0.5f);
 
@@ -233,15 +235,33 @@ bool Render::trace(const Ray& ray, Intersection* inter){
 
 void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f& color, int max_depth){
 
-    if(max_depth-1>=0){
-        Ray new_ray(inter.pos, reflect(ray.dir.normalized(), inter.normal.normalized()));
-        Intersection new_inter;
-        if(trace(new_ray, &new_inter)){
-            Eigen::Vector3f new_color = Eigen::Vector3f::Zero();
-            calc_color(new_ray, new_inter, new_color, max_depth-1);
-            color += (inter.mat.specular).cwiseProduct(new_color);
+    // if(max_depth-1>=0){
+    //     Ray new_ray(inter.pos, reflect(ray.dir.normalized(), inter.normal.normalized()));
+    //     Intersection new_inter;
+    //     if(trace(new_ray, &new_inter)){
+    //         Eigen::Vector3f new_color = Eigen::Vector3f::Zero();
+    //         calc_color(new_ray, new_inter, new_color, max_depth-1);
+    //         color += (inter.mat.specular).cwiseProduct(new_color);
+    //     }
+    // }
+    //
+    if (max_depth > 0) {
+            Eigen::Vector3f reflect_dir = reflect(ray.dir.normalized(), inter.normal.normalized());
+
+            // Offset the start position of the reflection ray by EPSILON to avoid self-intersection
+            Eigen::Vector3f reflect_origin = inter.pos + EPSILON * inter.normal;
+
+            Ray new_ray;
+            new_ray.origin = reflect_origin;
+            new_ray.dir = reflect_dir;
+
+            Intersection new_inter;
+            if (trace(new_ray, &new_inter)) {
+                Eigen::Vector3f new_color = Eigen::Vector3f::Zero();
+                calc_color(new_ray, new_inter, new_color, max_depth - 1);
+                color += (inter.mat.specular).cwiseProduct(new_color);
+            }
         }
-    }
 
     // color += Eigen::Vector3f(0.5,0.5,0.5) + inter.mat.emission;
     // return;
@@ -270,7 +290,7 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector
 
         // Shadow ray test
         Ray shadow_ray;
-        shadow_ray.origin = inter.pos;
+        shadow_ray.origin = inter.pos + EPSILON * inter.normal;
         shadow_ray.dir = light_dir;
         Intersection shadow_inter;
         if (!trace(shadow_ray, &shadow_inter) || shadow_inter.t > (light.pos - inter.pos).norm()) {
