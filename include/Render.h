@@ -50,10 +50,11 @@ public: //fn
 
 private: //fn
     bool trace(const Ray& ray, Intersection* inter);
-    void calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f& color);
+    void calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f& color, int max_depth);
     Eigen::Vector3f lambert_phong(const Light& light,
                        const Intersection& intersect,
                        const Eigen::Vector3f& dir,
                        const Eigen::Vector3f& half_vec);
     void computeChunk(int start_y, int end_y);
+    Eigen::Vector3f reflect(const Eigen::Vector3f& incident, const Eigen::Vector3f& normal);
 };

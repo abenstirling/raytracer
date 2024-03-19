@@ -4,7 +4,7 @@
 #include <utility>
 #include <cmath>
 
-#define EPSILON 10e-15
+#define EPSILON 10e-4
 
 class mm {
 public:
