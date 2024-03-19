@@ -15,20 +15,22 @@ Render::~Render(){
 
 Render::Ray Render::gen_ray(int y, int x){
     Ray ray;
-
     //compute fovx and aspect ratio
     float aspect_ratio = (float)scene->width / (float)scene->height;
-    float fovy = scene->camera.fovy;
-    float fovx = fovy * aspect_ratio;
+    float fovy_rad = scene->camera.fovy * M_PI/180.0f;
+    float fovx_rad = fovy_rad * aspect_ratio * 0.965;
 
-    float alpha = tan(fovx/2.0 * M_PI/180.0) * (x - scene->width / 2.0) / (scene->width / 2.0);
-    float beta = tan(fovy/2.0 * M_PI/180.0) * (scene->height / 2.0 - y) / (scene->height / 2.0);
+    float pixel_x = (x + 0.5f) - (scene->width / 2.0f);
+    float pixel_y = (scene->height / 2.0f) - (y + 0.5f);
+
+    float alpha = tan(fovx_rad/2.0f) * pixel_x / (scene->width / 2.0f);
+    float beta = tan(fovy_rad/2.0f) * pixel_y / (scene->height / 2.0f);
 
     // orthonormal basis vectors
-    Eigen::Vector3f w = (scene->camera.eye - scene->camera.center).normalized(); // Points away from the look direction
-    Eigen::Vector3f u = (scene->camera.up.cross(w)).normalized(); // mm::normalize(mm::cross(scene->camera.up, w)); // Right vector
-    Eigen::Vector3f v = w.cross(u); //mm::cross(w, u); // Actual up vector
-    Eigen::Vector3f ray_dir = (alpha * u + beta * v - w).normalized(); // mm::normalize(alpha * u + beta * v - w);
+    Eigen::Vector3f w = (scene->camera.eye - scene->camera.center).normalized();
+    Eigen::Vector3f u = (scene->camera.up.cross(w)).normalized();
+    Eigen::Vector3f v = w.cross(u);
+    Eigen::Vector3f ray_dir = (alpha * u + beta * v - w).normalized();
 
     ray.origin = scene->camera.eye;
     ray.dir = ray_dir;
@@ -39,7 +41,7 @@ Render::Ray Render::gen_ray(int y, int x){
 void Render::computeChunk(int start_y, int end_y) {
     for(int y = start_y; y < end_y; y++) {
         std::cout << std::setprecision(2) << std::fixed;
-        std::cout << (float)(y-start_y) / end_y-start_y << std::endl;
+        std::cout << (float)(y-start_y) / (end_y-start_y) << std::endl;
 
         for(int x = 0; x < scene->width; x++) {
             Ray ray = gen_ray(y, x);
@@ -237,7 +239,7 @@ void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector
         if(trace(new_ray, &new_inter)){
             Eigen::Vector3f new_color = Eigen::Vector3f::Zero();
             calc_color(new_ray, new_inter, new_color, max_depth-1);
-            color += new_inter.mat.specular.cwiseProduct(new_color);
+            color += (inter.mat.specular).cwiseProduct(new_color);
         }
     }
 
@@ -324,65 +326,3 @@ Eigen::Vector3f Render::lambert_phong(const Light& light,
 Eigen::Vector3f Render::reflect(const Eigen::Vector3f& incident, const Eigen::Vector3f& normal) {
     return incident - 2.0f * incident.dot(normal) * normal;
 }
-
-
-
-
-
-//--------------------------------------------------
-
-/*
-void Render::calc_color(const Ray& ray, const Intersection& inter, Eigen::Vector3f& color, int depth = 0) {
-    color += inter.mat.ambient.cwiseProduct(scene->ambient) + inter.mat.emission;
-
-    for (Light light : scene->lights) {
-        Eigen::Vector3f eye_dir = (ray.origin - inter.pos).normalized();
-        Eigen::Vector3f light_dir;
-        Eigen::Vector3f light_color;
-
-        if (!light.is_point) { //directional
-            light_dir = (light.pos).normalized();
-            light_color = light.color;
-        } else { //point
-            light_dir = (light.pos - inter.pos).normalized();
-            float dist = (light.pos - inter.pos).norm();
-            float c0 = scene->attenuation[0];
-            float c1 = scene->attenuation[1];
-            float c2 = scene->attenuation[2];
-            if (scene->attenuation.norm() == 0.0) {
-                light_color = light.color;
-            } else {
-                light_color = light.color / (c0 + c1 * dist + c2 * dist * dist);
-            }
-        }
-
-        // Shadow ray test
-        Ray shadow_ray;
-        shadow_ray.origin = inter.pos;
-        shadow_ray.dir = light_dir;
-        Intersection shadow_inter;
-        if (!trace(shadow_ray, &shadow_inter) || shadow_inter.t > (light.pos - inter.pos).norm()) {
-            Eigen::Vector3f half_vec = (light_dir + eye_dir).normalized();
-            color += light_color.cwiseProduct(lambert_phong(light, inter, light_dir, half_vec, light_dir, eye_dir));
-        }
-    }
-
-}
-
-Eigen::Vector3f Render::lambert_phong(const Light& light,
-                   const Intersection& intersect,
-                   const Eigen::Vector3f& dir,
-                   const Eigen::Vector3f& half_vec,
-                   const Eigen::Vector3f& light_dir,
-                   const Eigen::Vector3f& eye_dir) {
-    //
-    Eigen::Vector3f n = intersect.normal.normalized();
-    float nDotL = n.dot(dir);
-    Eigen::Vector3f lambert = intersect.mat.diffuse * std::max(nDotL, 0.0f);
-
-    float nDotH = n.dot(half_vec);
-    Eigen::Vector3f phong = intersect.mat.specular * pow(std::max(nDotH, 0.0f), intersect.mat.shininess);
-
-    return lambert + phong;
-}
- */
