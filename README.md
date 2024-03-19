@@ -8,11 +8,11 @@
 
 (3) [Grader Link Found Here](https://raviucsdgroup.s3.amazonaws.com/hw3/a7df6a9d86319f597944b0c8f800de65/20240319042018/index.html)
 
-(4) The platform your code supports and any specific compilation instructions.
+(4) M1 Macbook Pros!
 
 (5) N/A
 
-(6) Any special comments, issues or points in grading or generally about the assignment you want to convey.  For this assignment, you should at least describe the acceleration structure you use (if you implemented one), and point to any images/documentation/timings showing it works [timings can just be included in the README, ideally images and documentation would go on your website above].
+(6) Thanks for a great quarter!
 
 ## Milestone
 ### 1. Ben Stirling, Nicco Pompili
